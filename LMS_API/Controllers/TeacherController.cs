@@ -9,7 +9,7 @@ namespace LMS_API.Controllers
 {
     [Route("api/teacher")]
     [ApiController]
-    public class TeacherController:ControllerBase
+    public class TeacherController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
         private readonly IMapper _mapper;
@@ -18,7 +18,7 @@ namespace LMS_API.Controllers
             _db = db;
             _mapper = mapper;
         }
-        
+
 
         [HttpPost]
         public async Task<ActionResult<Teacher>> CreateTeacher(TeacherCreateDTO teacherDTO)
@@ -43,7 +43,7 @@ namespace LMS_API.Controllers
                 };
                 */
 
-                var duplicateEmail = await _db.Teacher.FirstOrDefaultAsync(u=>u.Email.ToLower()==teacherDTO.Email.ToLower());
+                var duplicateEmail = await _db.Teacher.FirstOrDefaultAsync(u => u.Email.ToLower() == teacherDTO.Email.ToLower());
                 if (duplicateEmail != null)
                 {
                     return Conflict($"'{teacherDTO.Email}' already exists.");
@@ -52,7 +52,7 @@ namespace LMS_API.Controllers
                 await _db.Teacher.AddAsync(teacher); // Teacher is a table name in SQL, and teacherDTO is an object which has properties that will be stored in Teacher table .
                 await _db.SaveChangesAsync();
                 //return Ok(teacherDTO);
-                return CreatedAtAction(nameof(CreateTeacher),new {id=teacher.Id},teacher);// instead of Ok
+                return CreatedAtAction(nameof(CreateTeacher), new { id = teacher.Id }, teacher);// instead of Ok
             }
             catch (Exception ex)
             {
@@ -60,6 +60,30 @@ namespace LMS_API.Controllers
                     $"An error occurred while creating the teacher: {ex.Message} ");
             }
         }
-        
+
+        [HttpPost("login")]
+        public async Task<ActionResult<bool>> LoginTeacher(TeacherLoginDTO teacherLoginDTO)
+        {
+
+            try
+            {
+
+                var teacher = await _db.Teacher.FirstOrDefaultAsync(u => u.Email.ToLower() == teacherLoginDTO.Email.ToLower() && u.Password == teacherLoginDTO.Password);
+
+                if (teacher != null)
+                {
+                    return true; 
+                }
+                else
+                {
+                    return false; 
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while login: {ex.Message} ");
+            }
+        }
     }
 }
