@@ -24,7 +24,10 @@ builder.Services.AddAutoMapper(o =>
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<IAssignmentService, AssignmentService>();
+
 var app = builder.Build();
 await SeedDataAsync(app);
 
