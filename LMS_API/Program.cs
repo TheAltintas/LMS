@@ -1,6 +1,7 @@
 using LMS_API.Data;
 using LMS_API.Models;
-using LMS_API.Models.DTO;
+using LMS_API.Models.DTO.Assignment;
+using LMS_API.Models.DTO.Teacher;
 using LMS_API.Services;
 using LMS_API.Services.Contract;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
 builder.Services.AddAutoMapper(o =>
 {
     o.CreateMap<Teacher, TeacherCreateDTO>().ReverseMap();
+    o.CreateMap<Assignment, AssignmentCreateDTO>().ReverseMap();
 });
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ITeacherService, TeacherService>();

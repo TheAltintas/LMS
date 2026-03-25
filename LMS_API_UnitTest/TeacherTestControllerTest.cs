@@ -2,7 +2,7 @@
 using LMS_API.Controllers;
 using LMS_API.Data;
 using LMS_API.Models;
-using LMS_API.Models.DTO;
+using LMS_API.Models.DTO.Teacher;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;

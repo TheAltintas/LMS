@@ -6,6 +6,7 @@ namespace LMS_API.Data
     public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Teacher> Teacher { get; set; }
+        public DbSet <Assignment> Assignments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -19,6 +20,17 @@ namespace LMS_API.Data
                     Password = "1234567890", 
                     CreatedDate = new DateTime(2026, 3, 13), 
                     UpdatedDate = new DateTime(2026, 3, 13)
+                }
+            );
+            modelBuilder.Entity<Assignment>().HasData(
+                new Assignment
+                {
+                    Id = 1,
+                    Points = 100,
+                    Type = "Homework",
+                    ClassLevel = "Grade 10",
+                    Subject = "Mathematics",
+                    CreatedDate = new DateTime(2026, 3, 25)
                 }
             );
         }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LMS_API.Models.DTO
+namespace LMS_API.Models.DTO.Teacher
 {
     public class TeacherLoginDTO
     {
