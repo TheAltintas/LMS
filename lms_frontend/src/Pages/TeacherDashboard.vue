@@ -49,11 +49,11 @@
       <div class="content-card">
         <h2>Quick Actions</h2>
         <div class="quick-actions">
+          <router-link to="/create-task" class="action-btn">
+            <span>📝</span> Create Task
+          </router-link>
           <button class="action-btn">
-            <span>➕</span> Create Course
-          </button>
-          <button class="action-btn">
-            <span>📋</span> New Assignment
+            <span>📚</span> Create Course
           </button>
           <button class="action-btn">
             <span>👥</span> Manage Students
@@ -236,6 +236,7 @@
   color: #0f172a;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
 }
 
 .action-btn:hover {

@@ -6,6 +6,7 @@
       </li>
       <template v-if="loggedIn">
         <li><router-link to="/teacher-dashboard">Dashboard</router-link></li>
+        <li><router-link to="/create-task">Create Task</router-link></li>
       </template>
     </ul>
 

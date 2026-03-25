@@ -6,6 +6,7 @@ namespace LMS_API.Data
     public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<User> Users => Set<User>();
+        public DbSet<Teacher> Teacher => Set<Teacher>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

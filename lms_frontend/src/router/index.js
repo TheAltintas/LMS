@@ -4,11 +4,13 @@ import Login from '../Pages/Login.vue';
 import Register from '../Pages/Register.vue';
 import TeacherDashboard from '../Pages/TeacherDashboard.vue';
 import FrontPage from '../Pages/FrontPage.vue';
+import TaskCreation from '../Pages/TaskCreation.vue';
 const routes = [
   { path: '/', name: 'FrontPage', component: FrontPage, meta: { guestOnly: true } },
   { path: '/login', name: 'Login', component: Login, meta: { guestOnly: true } },
   { path: '/register', name: 'Register', component: Register, meta: { guestOnly: true } },
-  { path: '/teacher-dashboard', name: 'TeacherDashboard', component: TeacherDashboard, meta: { requiresAuth: true, requiresTeacher: true } }
+  { path: '/teacher-dashboard', name: 'TeacherDashboard', component: TeacherDashboard, meta: { requiresAuth: true, requiresTeacher: true } },
+  { path: '/create-task', name: 'TaskCreation', component: TaskCreation, meta: { requiresAuth: true, requiresTeacher: true } }
 ];
 
 const router = createRouter({
