@@ -13,14 +13,15 @@ namespace LMS_API.Models
         [MaxLength(50)]
         public string Name { get; set; }
 
-        // Foreign key
+        // One-to-many (Teacher → AssignmentSets)
+        [Required]
         public int TeacherId { get; set; }
         public Teacher Teacher { get; set; }
 
-        public DateTime? CreatedDate { get; set; } // optional. it can be nullable
-        public DateTime? UpdatedDate { get; set; } // optional. it can be nullable
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
 
-        public ICollection<Assignment> Assignments { get; set; }
-
+        // MANY-TO-MANY
+        public ICollection<AssignmentAssignmentSet> AssignmentAssignmentSets { get; set; } = new List<AssignmentAssignmentSet>();
     }
 }

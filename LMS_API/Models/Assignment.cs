@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.InteropServices;
 
 namespace LMS_API.Models
 {
@@ -10,25 +11,34 @@ namespace LMS_API.Models
         public int Id { get; set; }
 
         [Required]
-        [Range(0,1000)]
+        [Range(0,10)]
         public decimal Points { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string Type { get; set; } // 'Quiz', 'Homework'
+        public string Type { get; set; }
 
         [Required]
         [MaxLength(20)]
-        public string ClassLevel { get; set; } // 'Grade 10'
+        public string ClassLevel { get; set; }
 
         [Required]
         [MaxLength(100)]
         public string Subject { get; set; }
-        
-        public DateTime? CreatedDate { get; set; } // optional. it can be nullable
-        public DateTime? UpdatedDate { get; set; } // optional. it can be nullable
 
-        public int? AssignmentSetId { get; set; } // Foreign Key
-        public AssignmentSet AssignmentSet { get; set; } // Navigation back to parent
+        // Picture of the problem, client said he gets all the concrete assignments as pictures.
+        [MaxLength(500)]
+        public string? PictureUrl { get; set; } // set as string now needs to be updated in the future, once we know how to store the images or if they are online.
+
+        [MaxLength(500)]
+        public string? VideoUrl { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+
+
+
+        // MANY-TO-MANY
+        public ICollection<AssignmentAssignmentSet> AssignmentAssignmentSets { get; set; } = new List<AssignmentAssignmentSet>();
     }
 }

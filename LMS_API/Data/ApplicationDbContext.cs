@@ -6,40 +6,96 @@ namespace LMS_API.Data
     public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Teacher> Teacher { get; set; }
-        public DbSet <Assignment> Assignments { get; set; }
+        public DbSet<Assignment> Assignments { get; set; }
         public DbSet<AssignmentSet> AssignmentSets { get; set; }
+
+        // MANY-TO-MANY relation between Assignment and AssignmentSet
+        public DbSet<AssignmentAssignmentSet> AssignmentAssignmentSets { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // -------------------------
+            // Teacher → AssignmentSet (1:M)
+            // -------------------------
+            modelBuilder.Entity<AssignmentSet>()
+                .HasOne(a => a.Teacher)
+                .WithMany(t => t.AssignmentSets)
+                .HasForeignKey(a => a.TeacherId);
+
+            // -------------------------
+            // Assignment ↔ AssignmentSet (M:M)
+            // -------------------------
+            modelBuilder.Entity<AssignmentAssignmentSet>()
+                .HasKey(x => new { x.AssignmentId, x.AssignmentSetId });
+
+            modelBuilder.Entity<AssignmentAssignmentSet>()
+                .HasOne(x => x.Assignment)
+                .WithMany(a => a.AssignmentAssignmentSets)
+                .HasForeignKey(x => x.AssignmentId);
+
+            modelBuilder.Entity<AssignmentAssignmentSet>()
+                .HasOne(x => x.AssignmentSet)
+                .WithMany(s => s.AssignmentAssignmentSets)
+                .HasForeignKey(x => x.AssignmentSetId);
+
+            // -------------------------
+            // Seed Teacher
+            // -------------------------
             modelBuilder.Entity<Teacher>().HasData(
-                new Teacher 
+                new Teacher
                 {
-                    Id = 1, 
-                    FirstName = "Morten", 
-                    LastName = "Domsgard", 
-                    Email = "morten.domsgard@ucl.dk", 
-                    Password = "1234567890", 
-                    CreatedDate = new DateTime(2026, 3, 13), 
+                    Id = 1,
+                    FirstName = "Morten",
+                    LastName = "Domsgard",
+                    Email = "morten.domsgard@ucl.dk",
+                    Password = "1234567890",
+                    CreatedDate = new DateTime(2026, 3, 13),
                     UpdatedDate = new DateTime(2026, 3, 13)
                 }
             );
+
+            // -------------------------
+            // Seed Assignment
+            // -------------------------
             modelBuilder.Entity<Assignment>().HasData(
                 new Assignment
                 {
                     Id = 1,
-                    Points = 100,
-                    Type = "Homework",
-                    ClassLevel = "Grade 10",
+                    Points = 10,
+                    Type = "Delprøve 1",
+                    ClassLevel = "A",
                     Subject = "Mathematics",
+                    PictureUrl = "https://example.com/assignment1.png",
+                    VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
                     CreatedDate = new DateTime(2026, 3, 25)
                 }
             );
 
-            modelBuilder.Entity<AssignmentSet>()
-                        .HasOne(a => a.Teacher)
-                        .WithMany(t => t.AssignmentSets)
-                        .HasForeignKey(a => a.TeacherId);
-                        
+            // -------------------------
+            // Seed AssignmentSet
+            // -------------------------
+            modelBuilder.Entity<AssignmentSet>().HasData(
+                new AssignmentSet
+                {
+                    Id = 1,
+                    Name = "Math Set 1",
+                    TeacherId = 1,
+                    CreatedDate = new DateTime(2026, 3, 25)
+                }
+            );
+
+            // -------------------------
+            // Seed MANY-TO-MANY relation
+            // -------------------------
+            modelBuilder.Entity<AssignmentAssignmentSet>().HasData(
+                new AssignmentAssignmentSet
+                {
+                    AssignmentId = 1,
+                    AssignmentSetId = 1
+                }
+            );
         }
     }
 }

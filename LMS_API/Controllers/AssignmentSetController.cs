@@ -58,5 +58,12 @@ namespace LMS_API.Controllers
                                     $"Error retrieving data: {ex.Message}");
             }
         }
+        [HttpPost("{assignmentSetId:int}/add-assignment/{assignmentId:int}")]
+        public async Task<ActionResult> AddAssignmentToSet(int assignmentSetId, int assignmentId)
+        {
+            var result = await _assignmentSetService.AddAssignmentToSetAsync(assignmentSetId, assignmentId);
+            if (!result) return BadRequest("Could not add assignment to set.");
+            return Ok("Assignment added successfully.");
+        }
     }
 }

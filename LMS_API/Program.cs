@@ -20,7 +20,11 @@ builder.Services.AddAutoMapper(o =>
 {
     o.CreateMap<Teacher, TeacherCreateDTO>().ReverseMap();
     o.CreateMap<Assignment, AssignmentCreateDTO>().ReverseMap();
+    o.CreateMap<Assignment, AssignmentReadDTO>().ReverseMap();
     o.CreateMap<AssignmentSet, AssignmentSetCreateDTO>().ReverseMap();
+    o.CreateMap<AssignmentSet, AssignmentSetReadDTO>()
+    .ForMember(dest => dest.Assignments,
+               opt => opt.MapFrom(src => src.AssignmentAssignmentSets.Select(x => x.Assignment)));
 });
 
 

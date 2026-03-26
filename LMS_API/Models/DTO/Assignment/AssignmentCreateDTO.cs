@@ -10,14 +10,21 @@ namespace LMS_API.Models.DTO.Assignment
 
         [Required(ErrorMessage = "Type of the assignment is required")]
         [MaxLength(50)]
-        public string Type { get; set; } // 'Quiz', 'Homework'
+        public string Type { get; set; } // 'Delprøve 1', 'Delprøve 2'
 
         [Required(ErrorMessage = "Class level of the assignment is required")]
         [MaxLength(20)]
-        public string ClassLevel { get; set; } // 'Grade 10'
+        public string ClassLevel { get; set; } // 'A, B or C'
 
         [Required(ErrorMessage = "Subject of the assignment is required")]
         [MaxLength(100)]
         public string Subject { get; set; }
+
+        [MaxLength(500)]
+        public string? PictureUrl { get; set; }
+        
+        [MaxLength(500)]
+        public string? VideoUrl { get; set; }
+        
     }
 }

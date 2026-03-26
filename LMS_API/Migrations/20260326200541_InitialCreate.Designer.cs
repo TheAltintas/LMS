@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260326154605_AddedCreatedDateToAssignmentSet")]
-    partial class AddedCreatedDateToAssignmentSet
+    [Migration("20260326200541_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,9 +33,6 @@ namespace LMS_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AssignmentSetId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ClassLevel")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -43,6 +40,10 @@ namespace LMS_API.Migrations
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("PictureUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("Points")
                         .HasColumnType("decimal(18,2)");
@@ -60,9 +61,11 @@ namespace LMS_API.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.HasIndex("AssignmentSetId");
+                    b.HasKey("Id");
 
                     b.ToTable("Assignments");
 
@@ -70,11 +73,35 @@ namespace LMS_API.Migrations
                         new
                         {
                             Id = 1,
-                            ClassLevel = "Grade 10",
+                            ClassLevel = "A",
                             CreatedDate = new DateTime(2026, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Points = 100m,
+                            PictureUrl = "https://example.com/assignment1.png",
+                            Points = 10m,
                             Subject = "Mathematics",
-                            Type = "Homework"
+                            Type = "Delprøve 1",
+                            VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                        });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.AssignmentAssignmentSet", b =>
+                {
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssignmentSetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AssignmentId", "AssignmentSetId");
+
+                    b.HasIndex("AssignmentSetId");
+
+                    b.ToTable("AssignmentAssignmentSets");
+
+                    b.HasData(
+                        new
+                        {
+                            AssignmentId = 1,
+                            AssignmentSetId = 1
                         });
                 });
 
@@ -105,6 +132,15 @@ namespace LMS_API.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("AssignmentSets");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Math Set 1",
+                            TeacherId = 1
+                        });
                 });
 
             modelBuilder.Entity("LMS_API.Models.Teacher", b =>
@@ -154,11 +190,21 @@ namespace LMS_API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("LMS_API.Models.Assignment", b =>
+            modelBuilder.Entity("LMS_API.Models.AssignmentAssignmentSet", b =>
                 {
+                    b.HasOne("LMS_API.Models.Assignment", "Assignment")
+                        .WithMany("AssignmentAssignmentSets")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("LMS_API.Models.AssignmentSet", "AssignmentSet")
-                        .WithMany("Assignments")
-                        .HasForeignKey("AssignmentSetId");
+                        .WithMany("AssignmentAssignmentSets")
+                        .HasForeignKey("AssignmentSetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
 
                     b.Navigation("AssignmentSet");
                 });
@@ -174,9 +220,14 @@ namespace LMS_API.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("LMS_API.Models.Assignment", b =>
+                {
+                    b.Navigation("AssignmentAssignmentSets");
+                });
+
             modelBuilder.Entity("LMS_API.Models.AssignmentSet", b =>
                 {
-                    b.Navigation("Assignments");
+                    b.Navigation("AssignmentAssignmentSets");
                 });
 
             modelBuilder.Entity("LMS_API.Models.Teacher", b =>
