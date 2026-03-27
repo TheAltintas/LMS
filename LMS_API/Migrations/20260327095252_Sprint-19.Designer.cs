@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260326200541_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260327095252_Sprint-19")]
+    partial class Sprint19
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
