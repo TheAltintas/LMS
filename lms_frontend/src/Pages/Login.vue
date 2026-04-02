@@ -3,14 +3,14 @@
     <section class="login-layout">
       <div class="welcome">
         <p class="badge">LMS Portal</p>
-        <h1>Welcome back</h1>
+        <h1>Velkommen tilbage</h1>
         <p class="lede">
-          Sign in to access your teaching resources, manage courses, and track student progress.
+          Log ind for at få adgang til dine undervisningsmaterialer, administrere kurser og følge elevers fremskridt.
         </p>
         <ul>
-          <li>Secure teacher authentication</li>
-          <li>Access your dashboard and courses</li>
-          <li>Manage students and assignments</li>
+          <li>Sikker login for lærere</li>
+          <li>Få adgang til dit dashboard og dine kurser</li>
+          <li>Administrer elever og opgaver</li>
         </ul>
       </div>
 
@@ -18,17 +18,17 @@
         <div class="header">
           <div class="circle"></div>
           <div>
-            <p class="eyebrow">Teacher Login</p>
-            <h2>Access your account</h2>
+            <p class="eyebrow">Lærer login</p>
+            <h2>Få adgang til din konto</h2>
           </div>
         </div>
 
         <label class="field">
-          <span>Email</span>
+          <span>E-mail</span>
           <input
             v-model="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder="dig@eksempel.dk"
             :class="{ invalid: errors.email }"
             autocomplete="username"
             required
@@ -37,7 +37,7 @@
         </label>
 
         <label class="field">
-          <span>Password</span>
+          <span>Adgangskode</span>
           <input
             v-model="password"
             type="password"
@@ -50,9 +50,9 @@
         </label>
 
         <div class="actions">
-          <router-link to="/" class="back-link">Back to Home</router-link>
+          <router-link to="/" class="back-link">Tilbage til forsiden</router-link>
           <button type="submit" :disabled="loading">
-            {{ loading ? 'Signing in...' : 'Sign in' }}
+            {{ loading ? 'Logger ind...' : 'Log ind' }}
           </button>
         </div>
 

@@ -3,19 +3,19 @@
     <section class="hero">
       <div class="hero-content">
         <p class="badge">LMS Portal</p>
-        <h1>Learning Management System</h1>
+        <h1>Læringsplatform</h1>
         <p class="lede">
-          A comprehensive platform for managing courses, tracking progress, and empowering both teachers and students.
+          En samlet platform til at administrere kurser, følge fremskridt og styrke både undervisere og elever.
         </p>
 
         <div class="cta-buttons">
           <router-link to="/login" class="btn btn-primary">
             <span class="btn-icon">👨‍🏫</span>
-            Teacher Login
+            Lærer login
           </router-link>
           <router-link to="/student-login" class="btn btn-secondary">
             <span class="btn-icon">👨‍🎓</span>
-            Student Login
+            Elev login
           </router-link>
         </div>
 
@@ -23,22 +23,22 @@
           <div class="feature">
             <div class="feature-icon">📚</div>
             <div>
-              <h3>Course Management</h3>
-              <p>Create and organize courses with ease</p>
+              <h3>Kursusstyring</h3>
+              <p>Opret og organiser kurser nemt</p>
             </div>
           </div>
           <div class="feature">
             <div class="feature-icon">📊</div>
             <div>
-              <h3>Progress Tracking</h3>
-              <p>Monitor student performance in real-time</p>
+              <h3>Fremskridtsovervågning</h3>
+              <p>Følg elevers præstation i realtid</p>
             </div>
           </div>
           <div class="feature">
             <div class="feature-icon">💬</div>
             <div>
-              <h3>Communication</h3>
-              <p>Stay connected with announcements</p>
+              <h3>Kommunikation</h3>
+              <p>Hold kontakten med beskeder og opdateringer</p>
             </div>
           </div>
         </div>
