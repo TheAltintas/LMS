@@ -3,14 +3,14 @@
     <section class="register-layout">
       <div class="welcome">
         <p class="badge">LMS Portal</p>
-        <h1>Create your account</h1>
+        <h1>Opret din konto</h1>
         <p class="lede">
-          Join our learning management system and start managing your courses, students, and educational content.
+          Bliv en del af vores læringsplatform og begynd at administrere dine kurser, elever og undervisningsmateriale.
         </p>
         <ul>
-          <li>Create and organize courses</li>
-          <li>Track student progress</li>
-          <li>Manage assignments and grades</li>
+          <li>Opret og organiser kurser</li>
+          <li>Følg elevers fremskridt</li>
+          <li>Administrer opgaver og karakterer</li>
         </ul>
       </div>
 
@@ -18,14 +18,14 @@
         <div class="header">
           <div class="circle"></div>
           <div>
-            <p class="eyebrow">Teacher Registration</p>
-            <h2>Get started</h2>
+            <p class="eyebrow">Lærer registrering</p>
+            <h2>Kom i gang</h2>
           </div>
         </div>
 
         <div class="name-fields">
           <label class="field">
-            <span>First Name</span>
+            <span>Fornavn</span>
             <input
               v-model="firstname"
               type="text"
@@ -38,7 +38,7 @@
           </label>
 
           <label class="field">
-            <span>Last Name</span>
+            <span>Efternavn</span>
             <input
               v-model="lastname"
               type="text"
@@ -56,7 +56,7 @@
           <input
             v-model="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder="dig@eksempel.dk"
             :class="{ invalid: errors.email }"
             autocomplete="email"
             required
@@ -65,7 +65,7 @@
         </label>
 
         <label class="field">
-          <span>Password</span>
+          <span>Adgangskode</span>
           <input
             v-model="password"
             type="password"
@@ -78,9 +78,11 @@
         </label>
 
         <div class="actions">
-          <router-link to="/login" class="back-link">Already have an account?</router-link>
+          <router-link to="/login" class="back-link">
+            Har du allerede en konto?
+          </router-link>
           <button type="submit" :disabled="loading">
-            {{ loading ? 'Creating account...' : 'Create account' }}
+            {{ loading ? 'Opretter konto...' : 'Opret konto' }}
           </button>
         </div>
 

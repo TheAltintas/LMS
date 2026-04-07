@@ -3,36 +3,37 @@
     <div class="task-form-container">
       <div class="form-header">
         <p class="badge">Task Management</p>
-        <h1>Create New Task</h1>
-        <p class="subtitle">Fill in the details below to create a new task for your students</p>
+        <h1>Opret ny opgave</h1>
+        <p class="subtitle">
+          Udfyld detaljerne nedenfor for at oprette en ny opgave til dine elever
+        </p>
       </div>
 
       <form @submit.prevent="handleSubmit" novalidate>
         <div class="form-sections">
-          <!-- Section 1: Task Settings -->
+          <!-- Section 1 -->
           <div class="form-section">
-            <h2>Task Settings</h2>
+            <h2>Opgave indstillinger</h2>
 
             <div class="field-grid">
               <label class="field">
-                <span>Studielinje</span>
-                <select v-model="form.studielinje" :class="{ invalid: errors.studielinje }">
-                  <option value="">Select studielinje...</option>
-                  <option value="htx">HTX</option>
-                  <option value="stx">STX</option>
-                  <option value="hhx">HHX</option>
-                  <option value="hf">HF</option>
-                </select>
-                <small v-if="errors.studielinje">{{ errors.studielinje }}</small>
+                <span>Emne F.eks. "Linæer Algebra"</span>
+                <input
+                  v-model="form.subject"
+                  type="text"
+                  placeholder="Vælg emne"
+                  :class="{ invalid: errors.subject }"
+                />
+                <small v-if="errors.subject">{{ errors.subject }}</small>
               </label>
 
               <label class="field">
                 <span>Niveau</span>
                 <select v-model="form.niveau" :class="{ invalid: errors.niveau }">
-                  <option value="">Select niveau...</option>
-                  <option value="a">A-niveau</option>
-                  <option value="b">B-niveau</option>
-                  <option value="c">C-niveau</option>
+                  <option value="">Vælg niveau...</option>
+                  <option value="A">A-niveau</option>
+                  <option value="B">B-niveau</option>
+                  <option value="C">C-niveau</option>
                 </select>
                 <small v-if="errors.niveau">{{ errors.niveau }}</small>
               </label>
@@ -40,21 +41,21 @@
               <label class="field">
                 <span>Delprøve</span>
                 <select v-model="form.delprove" :class="{ invalid: errors.delprove }">
-                  <option value="">Select delprøve...</option>
-                  <option value="delprove1">Delprøve 1</option>
-                  <option value="delprove2">Delprøve 2</option>
-                  <option value="mundtlig">Mundtlig</option>
+                  <option value="">Vælg delprøve...</option>
+                  <option value="Delprøve 1">Delprøve 1</option>
+                  <option value="Delprøve 2">Delprøve 2</option>
+                  <option value="Mundtlig">Mundtlig</option>
                 </select>
                 <small v-if="errors.delprove">{{ errors.delprove }}</small>
               </label>
 
               <label class="field">
-                <span>Point (1-100)</span>
+                <span>Point (1-10)</span>
                 <input
                   v-model.number="form.point"
                   type="number"
                   min="1"
-                  max="100"
+                  max="10"
                   placeholder="Enter points"
                   :class="{ invalid: errors.point }"
                 />
@@ -63,26 +64,23 @@
             </div>
           </div>
 
-          <!-- Section 2: Task Content -->
+          <!-- Section 2 -->
           <div class="form-section">
-            <h2>Task Content</h2>
+            <h2>Opgave indhold</h2>
 
             <label class="field">
-              <span>Question <span class="required">*</span></span>
-              <textarea
-                v-model="form.question"
-                placeholder="Enter the task question (minimum 20 characters)"
-                rows="5"
-                :class="{ invalid: errors.question }"
-              ></textarea>
-              <small v-if="errors.question">{{ errors.question }}</small>
-              <span class="char-count" :class="{ warning: form.question.length < 20 && form.question.length > 0 }">
-                {{ form.question.length }}/20 min
-              </span>
+              <span>Billede URL</span>
+              <input
+                v-model="form.PictureUrl"
+                type="url"
+                placeholder="https://example.com/picture"
+                :class="{ invalid: errors.PictureUrl }"
+              />
+              <small v-if="errors.PictureUrl">{{ errors.PictureUrl }}</small>
             </label>
 
             <label class="field">
-              <span>Related Video <span class="optional">(optional)</span></span>
+              <span>Video løsning <span class="optional">(valgfri)</span></span>
               <input
                 v-model="form.relatedVideo"
                 type="url"
@@ -95,15 +93,14 @@
         </div>
 
         <div class="form-actions">
-          <router-link to="/teacher-dashboard" class="back-link">Cancel</router-link>
+          <router-link to="/teacher-dashboard" class="back-link">Tilbage</router-link>
           <button type="submit" :disabled="loading">
             <span v-if="loading" class="spinner"></span>
-            {{ loading ? 'Creating...' : 'Create Task' }}
+            {{ loading ? 'Opretter...' : 'Opret Opgave' }}
           </button>
         </div>
       </form>
 
-      <!-- Toast notification -->
       <div v-if="toast.show" :class="['toast', toast.type]">
         {{ toast.message }}
       </div>
@@ -116,16 +113,17 @@ import { ref, reactive } from 'vue';
 import { CreateTask } from '../Services/api';
 
 const form = reactive({
-  studielinje: '',
+  subject: '',
   niveau: '',
   delprove: '',
   point: null,
-  question: '',
+  PictureUrl: '',
   relatedVideo: ''
 });
 
 const errors = ref({});
 const loading = ref(false);
+
 const toast = reactive({
   show: false,
   message: '',
@@ -136,25 +134,15 @@ function showToast(message, type = 'success') {
   toast.show = true;
   toast.message = message;
   toast.type = type;
-  setTimeout(() => {
-    toast.show = false;
-  }, 3000);
+  setTimeout(() => (toast.show = false), 3000);
 }
 
 function validate() {
   const nextErrors = {};
 
-  if (!form.studielinje) {
-    nextErrors.studielinje = 'Please select a studielinje';
-  }
-
-  if (!form.niveau) {
-    nextErrors.niveau = 'Please select a niveau';
-  }
-
-  if (!form.delprove) {
-    nextErrors.delprove = 'Please select a delprøve';
-  }
+  if (!form.subject) nextErrors.subject = 'Please select a subject';
+  if (!form.niveau) nextErrors.niveau = 'Please select a niveau';
+  if (!form.delprove) nextErrors.delprove = 'Please select a delprøve';
 
   if (!form.point) {
     nextErrors.point = 'Please enter points';
@@ -162,11 +150,7 @@ function validate() {
     nextErrors.point = 'Points must be between 1 and 100';
   }
 
-  if (!form.question) {
-    nextErrors.question = 'Question is required';
-  } else if (form.question.length < 20) {
-    nextErrors.question = 'Question must be at least 20 characters';
-  }
+  if (!form.PictureUrl) nextErrors.PictureUrl = 'Picture URL is required';
 
   if (form.relatedVideo && !isValidUrl(form.relatedVideo)) {
     nextErrors.relatedVideo = 'Please enter a valid URL';
@@ -180,17 +164,17 @@ function isValidUrl(string) {
   try {
     new URL(string);
     return true;
-  } catch (_) {
+  } catch {
     return false;
   }
 }
 
 function resetForm() {
-  form.studielinje = '';
+  form.subject = '';
   form.niveau = '';
   form.delprove = '';
   form.point = null;
-  form.question = '';
+  form.PictureUrl = '';
   form.relatedVideo = '';
   errors.value = {};
 }
@@ -202,19 +186,19 @@ async function handleSubmit() {
 
   try {
     await CreateTask({
-      studielinje: form.studielinje,
-      niveau: form.niveau,
-      delprove: form.delprove,
-      point: form.point,
-      question: form.question,
-      relatedVideo: form.relatedVideo || null
+      Points: Number(form.point),
+      Type: form.delprove,
+      ClassLevel: form.niveau,
+      Subject: form.subject,
+      PictureUrl: form.PictureUrl || null,
+      VideoUrl: form.relatedVideo || null
     });
 
     showToast('Task created successfully!', 'success');
     resetForm();
   } catch (error) {
     console.error('Failed to create task:', error);
-    showToast('Failed to create task. Please try again.', 'error');
+    showToast('Failed to create task.', 'error');
   } finally {
     loading.value = false;
   }
@@ -326,6 +310,15 @@ async function handleSubmit() {
 select,
 input[type="number"],
 input[type="url"],
+input[type="text"] {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: #0f172a;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 textarea {
   background: #f8fafc;
   border: 1px solid #e2e8f0;

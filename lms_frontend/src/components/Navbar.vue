@@ -6,17 +6,17 @@
       </li>
       <template v-if="loggedIn">
         <li><router-link to="/teacher-dashboard">Dashboard</router-link></li>
-        <li><router-link to="/create-task">Create Task</router-link></li>
+        <li><router-link to="/create-task">Opret Opgave</router-link></li>
       </template>
     </ul>
 
     <ul class="nav-right">
       <template v-if="loggedIn">
-        <li><a href="#" @click.prevent="logout">Logout</a></li>
+        <li><a href="#" @click.prevent="logout">Logud</a></li>
       </template>
       <template v-else>
         <li><router-link to="/login">Login</router-link></li>
-        <li><router-link to="/register">Register</router-link></li>
+        <li><router-link to="/register">Opret konto</router-link></li>
       </template>
     </ul>
   </nav>

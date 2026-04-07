@@ -2,9 +2,9 @@
   <div class="dashboard">
     <div class="dashboard-header">
       <div>
-        <p class="badge">Teacher Portal</p>
-        <h1>Welcome to your Dashboard</h1>
-        <p class="subtitle">Manage your courses, students, and educational content</p>
+        <p class="badge">Lærerportal</p>
+        <h1>Velkommen til dit dashboard</h1>
+        <p class="subtitle">Administrer dine kurser, elever og undervisningsindhold</p>
       </div>
     </div>
 
@@ -12,52 +12,46 @@
       <div class="stat-card">
         <div class="stat-icon courses-icon">📚</div>
         <div class="stat-content">
-          <h3>Courses</h3>
+          <h3>Kurser</h3>
           <p class="stat-number">0</p>
-          <p class="stat-label">Active courses</p>
+          <p class="stat-label">Aktive kurser</p>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-icon students-icon">👨‍🎓</div>
         <div class="stat-content">
-          <h3>Students</h3>
+          <h3>Elever</h3>
           <p class="stat-number">0</p>
-          <p class="stat-label">Enrolled students</p>
+          <p class="stat-label">Tilmeldte elever</p>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-icon assignments-icon">📝</div>
         <div class="stat-content">
-          <h3>Assignments</h3>
+          <h3>Opgaver</h3>
           <p class="stat-number">0</p>
-          <p class="stat-label">Pending reviews</p>
+          <p class="stat-label">Afventende rettelser</p>
         </div>
       </div>
     </div>
 
     <div class="dashboard-content">
       <div class="content-card">
-        <h2>Recent Activity</h2>
+        <h2>Seneste aktivitet</h2>
         <div class="empty-state">
-          <p>No recent activity</p>
-          <p class="muted">Your recent actions will appear here</p>
+          <p>Ingen seneste aktivitet</p>
+          <p class="muted">Dine seneste handlinger vil vises her</p>
         </div>
       </div>
 
       <div class="content-card">
-        <h2>Quick Actions</h2>
+        <h2>Hurtige handlinger</h2>
         <div class="quick-actions">
           <router-link to="/create-task" class="action-btn">
-            <span>📝</span> Create Task
+            <span>📝</span> Opret opgave
           </router-link>
-          <button class="action-btn">
-            <span>📚</span> Create Course
-          </button>
-          <button class="action-btn">
-            <span>👥</span> Manage Students
-          </button>
         </div>
       </div>
     </div>

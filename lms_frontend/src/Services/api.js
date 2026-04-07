@@ -32,19 +32,21 @@ export async function LoginTeacher(email, password) {
     return await response.json();
 }
 
-export async function CreateTask(taskData) {
-    const response = await fetch('http://localhost:5294/api/tasks', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(taskData)
-    });
+export async function CreateTask(data) {
+  console.log("Sending payload:", data);
 
-    if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text);
-    }
+  const response = await fetch('http://localhost:5294/api/assignment', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
 
-    return await response.json();
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text);
+  }
+
+  return await response.json();
 }
