@@ -5,8 +5,11 @@
         <router-link to="/">LMS Portal</router-link>
       </li>
       <template v-if="loggedIn">
-        <li><router-link to="/teacher-dashboard">Dashboard</router-link></li>
-        <li><router-link to="/create-task">Create Task</router-link></li>
+        <li v-if="isTeacher"><router-link to="/teacher-dashboard">Dashboard</router-link></li>
+        <li v-if="isTeacher"><router-link to="/create-task">Create Task</router-link></li>
+        <li v-if="isTeacher"><router-link to="/create-taskset">Create Taskset</router-link></li>
+        <li v-if="isTeacher"><router-link to="/register-student">Register Student</router-link></li>
+        <li v-if="isStudent"><router-link to="/student-dashboard">Student Dashboard</router-link></li>
       </template>
     </ul>
 
@@ -16,6 +19,7 @@
       </template>
       <template v-else>
         <li><router-link to="/login">Login</router-link></li>
+        <li><router-link to="/student-login">Student Login</router-link></li>
         <li><router-link to="/register">Register</router-link></li>
       </template>
     </ul>
@@ -29,9 +33,14 @@ import { useRouter, useRoute } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 const loggedIn = ref(false);
+const isTeacher = ref(false);
+const isStudent = ref(false);
 
 function checkLoginStatus() {
-  loggedIn.value = !!localStorage.getItem('user');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  loggedIn.value = !!user.email;
+  isTeacher.value = user?.role?.toLowerCase() === 'teacher';
+  isStudent.value = user?.role?.toLowerCase() === 'student';
 }
 
 onMounted(() => {

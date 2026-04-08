@@ -52,12 +52,12 @@
           <router-link to="/create-task" class="action-btn">
             <span>📝</span> Create Task
           </router-link>
-          <button class="action-btn">
-            <span>📚</span> Create Course
-          </button>
-          <button class="action-btn">
-            <span>👥</span> Manage Students
-          </button>
+          <router-link to="/create-taskset" class="action-btn">
+            <span>📚</span> Create Taskset
+          </router-link>
+          <router-link to="/register-student" class="action-btn">
+            <span>👥</span> Register Students
+          </router-link>
         </div>
       </div>
     </div>

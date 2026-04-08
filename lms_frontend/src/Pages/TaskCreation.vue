@@ -202,12 +202,12 @@ async function handleSubmit() {
 
   try {
     await CreateTask({
-      studielinje: form.studielinje,
-      niveau: form.niveau,
-      delprove: form.delprove,
-      point: form.point,
-      question: form.question,
-      relatedVideo: form.relatedVideo || null
+      subject: form.studielinje,
+      classLevel: form.niveau.toUpperCase(),
+      type: form.delprove === 'delprove1' ? 'Delprøve 1' : form.delprove === 'delprove2' ? 'Delprøve 2' : 'Mundtlig',
+      points: form.point,
+      pictureUrl: null,
+      videoUrl: form.relatedVideo || null
     });
 
     showToast('Task created successfully!', 'success');
