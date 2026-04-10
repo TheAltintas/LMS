@@ -1,6 +1,6 @@
 using LMS_API.Models.DTO.Student;
 
-namespace LMS_API.Models
+namespace LMS_API.Models.DTO.StudyClass
 {
     public class StudyClassReadDTO
     {

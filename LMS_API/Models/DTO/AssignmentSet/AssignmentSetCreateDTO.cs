@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace LMS_API.Models.DTO.Assignmentset
+namespace LMS_API.Models.DTO.AssignmentSet
 {
     public class AssignmentSetCreateDTO
     {

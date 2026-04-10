@@ -1,6 +1,6 @@
 ﻿using LMS_API.Models.DTO.Assignment;
 
-namespace LMS_API.Models.DTO.Assignmentset
+namespace LMS_API.Models.DTO.AssignmentSet
 {
     public class AssignmentSetReadDTO
     {

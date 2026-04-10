@@ -85,3 +85,9 @@ export async function CreateTask(data) {
     body: JSON.stringify(data)
   }, true);
 }
+
+export async function GetTeacherTasks() {
+  return await request('/assignment/teacher', {
+    method: 'GET'
+  }, true);
+}

@@ -1,6 +1,6 @@
 ﻿using LMS_API.Models;
 using LMS_API.Models.DTO.Assignment;
-using LMS_API.Models.DTO.Assignmentset;
+using LMS_API.Models.DTO.AssignmentSet;
 
 namespace LMS_API.Services.Contract
 {

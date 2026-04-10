@@ -21,12 +21,22 @@ namespace LMS_API.Data
             base.OnModelCreating(modelBuilder);
 
             // -------------------------
+            // Teacher → Assignment (1:M)
+            // -------------------------
+            modelBuilder.Entity<Assignment>()
+                .HasOne(a => a.Teacher)
+                .WithMany(t => t.Assignments)
+                .HasForeignKey(a => a.TeacherId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // -------------------------
             // Teacher → AssignmentSet (1:M)
             // -------------------------
             modelBuilder.Entity<AssignmentSet>()
                 .HasOne(a => a.Teacher)
                 .WithMany(t => t.AssignmentSets)
-                .HasForeignKey(a => a.TeacherId);
+                .HasForeignKey(a => a.TeacherId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             // -------------------------
             // Assignment ↔ AssignmentSet (M:M)
@@ -60,6 +70,12 @@ namespace LMS_API.Data
                 .WithMany(sc => sc.StudentStudyClasses)
                 .HasForeignKey(ssc => ssc.StudyClassId);
 
+            modelBuilder.Entity<StudyClass>()
+                .HasOne(sc => sc.Teacher)
+                .WithMany(t => t.StudyClasses)
+                .HasForeignKey(sc => sc.TeacherId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             // -------------------------
             // Seed Teacher
             // -------------------------
@@ -89,6 +105,7 @@ namespace LMS_API.Data
                     Subject = "Mathematics",
                     PictureUrl = "https://example.com/assignment1.png",
                     VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    TeacherId = 1,
                     CreatedDate = new DateTime(2026, 3, 25)
                 }
             );

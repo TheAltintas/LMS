@@ -18,7 +18,7 @@ namespace LMS_API.Services
             _mapper = mapper;
         }
 
-        public async Task<Assignment> CreateAssignmentAsync(AssignmentCreateDTO assignmentDTO)
+        public async Task<Assignment> CreateAssignmentAsync(AssignmentCreateDTO assignmentDTO, int teacherId)
         {
             try
             {
@@ -26,6 +26,7 @@ namespace LMS_API.Services
 
                 Assignment assignment = _mapper.Map<Assignment>(assignmentDTO);
                 assignment.CreatedDate = DateTime.Now;
+            assignment.TeacherId = teacherId;
 
                 await _db.Assignments.AddAsync(assignment);
                 await _db.SaveChangesAsync();
@@ -37,11 +38,13 @@ namespace LMS_API.Services
             }
         }
 
-        public async Task<IEnumerable<Assignment>> GetAllAssignmentsAsync()
+        public async Task<IEnumerable<Assignment>> GetAllAssignmentsAsync(int teacherId)
         {
             try
             {
-                return await _db.Assignments.ToListAsync();
+                return await _db.Assignments
+                    .Where(a => a.TeacherId == teacherId)
+                    .ToListAsync();
             }
             catch (Exception)
             {
@@ -49,11 +52,12 @@ namespace LMS_API.Services
             }
         }
 
-        public async Task<bool> DeleteAssignmentAsync(int id)
+        public async Task<bool> DeleteAssignmentAsync(int id, int teacherId)
         {
             try
             {
-                var assignment = await _db.Assignments.FindAsync(id);
+                var assignment = await _db.Assignments
+                    .FirstOrDefaultAsync(a => a.Id == id && a.TeacherId == teacherId);
                 if (assignment == null) return false;
 
                 // Remove links in join table first

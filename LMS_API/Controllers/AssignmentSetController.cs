@@ -1,5 +1,5 @@
 ﻿using LMS_API.Models;
-using LMS_API.Models.DTO.Assignmentset;
+using LMS_API.Models.DTO.AssignmentSet;
 using LMS_API.Services.Contract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

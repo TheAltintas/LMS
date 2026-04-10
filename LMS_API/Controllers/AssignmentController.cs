@@ -12,9 +12,12 @@ namespace LMS_API.Controllers
     public class AssignmentController:ControllerBase
     {
         private readonly IAssignmentService _assignmentService;
-        public AssignmentController(IAssignmentService assignmentService) 
+        private readonly ITokenService _tokenService;
+
+        public AssignmentController(IAssignmentService assignmentService, ITokenService tokenService) 
         {
             _assignmentService = assignmentService;
+            _tokenService = tokenService;
         }
         
 
@@ -27,7 +30,12 @@ namespace LMS_API.Controllers
                 {
                     return BadRequest("Assignment data is required");
                 }
-                var assignment = await _assignmentService.CreateAssignmentAsync(assignmentDTO);
+                if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                {
+                    return Unauthorized("Missing or invalid teacher identity.");
+                }
+
+                var assignment = await _assignmentService.CreateAssignmentAsync(assignmentDTO, teacherId);
                 if (assignment == null)
                 {
                     return BadRequest("Could not create assignment.");
@@ -43,11 +51,17 @@ namespace LMS_API.Controllers
 
 
         [HttpGet]
+        [HttpGet("teacher")]
         public async Task<ActionResult<IEnumerable<Assignment>>> GetAllAssignments()
         {
             try
             {
-                var assignments = await _assignmentService.GetAllAssignmentsAsync();
+                if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                {
+                    return Unauthorized("Missing or invalid teacher identity.");
+                }
+
+                var assignments = await _assignmentService.GetAllAssignmentsAsync(teacherId);
                 return Ok(assignments);
             }
             catch(Exception ex)
@@ -59,7 +73,12 @@ namespace LMS_API.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteAssignment(int id)
         {
-            var deleted = await _assignmentService.DeleteAssignmentAsync(id);
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+            {
+                return Unauthorized("Missing or invalid teacher identity.");
+            }
+
+            var deleted = await _assignmentService.DeleteAssignmentAsync(id, teacherId);
 
             if (!deleted) 
             {

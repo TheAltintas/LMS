@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 
 namespace LMS_API.Models
 {
@@ -36,9 +37,14 @@ namespace LMS_API.Models
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
 
+        public int TeacherId { get; set; }
+        [JsonIgnore]
+        public Teacher Teacher { get; set; }
+
 
 
         // MANY-TO-MANY
+        [JsonIgnore]
         public ICollection<AssignmentAssignmentSet> AssignmentAssignmentSets { get; set; } = new List<AssignmentAssignmentSet>();
     }
 }

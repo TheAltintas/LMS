@@ -1,5 +1,5 @@
 using LMS_API.Models;
-using LMS_API.Models.DTO;
+using LMS_API.Models.DTO.StudyClass;
 
 namespace LMS_API.Services.Contract
 {

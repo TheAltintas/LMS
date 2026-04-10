@@ -1,7 +1,7 @@
 using AutoMapper;
 using LMS_API.Data;
 using LMS_API.Models;
-using LMS_API.Models.DTO;
+using LMS_API.Models.DTO.StudyClass;
 using LMS_API.Services.Contract;
 using Microsoft.EntityFrameworkCore;
 
