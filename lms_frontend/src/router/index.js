@@ -5,6 +5,7 @@ import Register from '../Pages/Register.vue';
 import TeacherDashboard from '../Pages/TeacherDashboard.vue';
 import FrontPage from '../Pages/FrontPage.vue';
 import TaskCreation from '../Pages/TaskCreation.vue';
+import { getAuthSession } from '../Services/api';
 const routes = [
   { path: '/', name: 'FrontPage', component: FrontPage, meta: { guestOnly: true } },
   { path: '/login', name: 'Login', component: Login, meta: { guestOnly: true } },
@@ -19,13 +20,14 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const loggedIn = !!user;
+  const auth = getAuthSession();
+  const loggedIn = !!auth?.token;
+  const role = auth?.role?.toLowerCase();
 
   // Guest-only pages
   if (to.meta.guestOnly && loggedIn) {
     // Redirect teachers to dashboard - in future redirect students to /student-dashboard
-    if (user?.role?.toLowerCase() === 'teacher') {
+    if (role === 'teacher') {
       return next('/teacher-dashboard');
     }
     // Redirect other logged-in users to a default page
@@ -38,7 +40,7 @@ router.beforeEach((to, from, next) => {
   }
 
   // Require teacher role
-  if (to.meta.requiresTeacher && user?.role?.toLowerCase() !== 'teacher') {
+  if (to.meta.requiresTeacher && role !== 'teacher') {
     return next('/');
   }
 

@@ -1,8 +1,10 @@
 ﻿    using AutoMapper;
     using LMS_API.Data;
     using LMS_API.Models;
+    using LMS_API.Models.DTO.Auth;
     using LMS_API.Models.DTO.Teacher;
     using LMS_API.Services.Contract;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +16,14 @@
         public class TeacherController : ControllerBase
         {
             private readonly ITeacherService _teacherService;
-            public TeacherController(ITeacherService teacherService)
+            private readonly ITokenService _tokenService;
+
+            public TeacherController(ITeacherService teacherService, ITokenService tokenService)
             {
                 _teacherService = teacherService;
+                _tokenService = tokenService;
             }
+            [AllowAnonymous]
             [HttpPost]
             public async Task<ActionResult<Teacher>> CreateTeacher(TeacherCreateDTO teacherDTO)
             {
@@ -43,12 +49,25 @@
             }
 
             [HttpPost("login")]
-            public async Task<ActionResult<bool>> LoginTeacher(TeacherLoginDTO teacherLoginDTO)
+            [AllowAnonymous]
+            public async Task<ActionResult<AuthResponseDTO>> LoginTeacher(TeacherLoginDTO teacherLoginDTO)
             {
                 try
                 {
-                    var isSuccess = await _teacherService.LoginAsync(teacherLoginDTO);
-                    return Ok(isSuccess);
+                    var teacher = await _teacherService.AuthenticateAsync(teacherLoginDTO);
+                    if (teacher == null)
+                    {
+                        return Unauthorized("Invalid email or password.");
+                    }
+
+                    var token = _tokenService.GenerateToken(teacher.Id, teacher.Email, "Teacher");
+                    return Ok(new AuthResponseDTO
+                    {
+                        Token = token,
+                        Role = "Teacher",
+                        Email = teacher.Email,
+                        ExpiresAtUtc = _tokenService.GetTokenExpiryUtc()
+                    });
                 }
                 catch(Exception ex)
                 {

@@ -47,10 +47,13 @@ namespace LMS_API.Services
                 return null;
             }          
         }
-        public async Task<bool> LoginAsync(TeacherLoginDTO loginDTO) 
+        public async Task<Teacher?> AuthenticateAsync(TeacherLoginDTO loginDTO) 
         {
-            var teacher = await _db.Teacher.FirstOrDefaultAsync(u => u.Email.ToLower() == loginDTO.Email.ToLower() && u.Password == loginDTO.Password);
-            return teacher != null;
+            return await _db.Teacher
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u =>
+                    u.Email.ToLower() == loginDTO.Email.ToLower() &&
+                    u.Password == loginDTO.Password);
         }
     }
 }

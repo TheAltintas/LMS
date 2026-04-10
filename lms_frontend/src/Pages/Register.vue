@@ -96,7 +96,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { RegisterTeacher, LoginTeacher } from '../Services/api';
+import { RegisterTeacher, LoginTeacher, setAuthSession } from '../Services/api';
 import { useRouter } from 'vue-router';
 
 const firstname = ref('');
@@ -164,12 +164,13 @@ async function handleRegister() {
     const loginData = await LoginTeacher(email.value, password.value);
     console.log('Login successful:', loginData);
 
-    status.value = 'success';
+    if (!loginData?.token) {
+      throw new Error('Registration succeeded but login failed. Please try to log in.');
+    }
 
-    localStorage.setItem('user', JSON.stringify({
-      email: email.value,
-      role: 'Teacher'
-    }));
+    setAuthSession(loginData);
+
+    status.value = 'success';
 
     setTimeout(() => {
       router.push('/teacher-dashboard');
@@ -177,6 +178,7 @@ async function handleRegister() {
   } catch (error) {
     console.error('Registration/Login failed:', error);
     status.value = 'error';
+  } finally {
     loading.value = false;
   }
 }

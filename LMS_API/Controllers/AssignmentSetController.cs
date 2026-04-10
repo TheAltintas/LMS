@@ -1,12 +1,14 @@
 ﻿using LMS_API.Models;
 using LMS_API.Models.DTO.Assignmentset;
 using LMS_API.Services.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS_API.Controllers
 {
     [Route("api/assignmentset")]
     [ApiController]
+    [Authorize(Roles = "Teacher")]
     public class AssignmentSetController:ControllerBase
     {
         private readonly IAssignmentSetService _assignmentSetService;

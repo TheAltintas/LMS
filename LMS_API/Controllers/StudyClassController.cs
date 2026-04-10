@@ -1,12 +1,14 @@
 using LMS_API.Models;
 using LMS_API.Models.DTO;
 using LMS_API.Services.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS_API.Controllers
 {
     [Route("api/studyclass")]
     [ApiController]
+    [Authorize(Roles = "Teacher")]
     public class StudyClassController : ControllerBase
     {
         private readonly IStudyClassService _studyClassService;

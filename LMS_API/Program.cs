@@ -1,9 +1,6 @@
 using System.Text;
 using LMS_API.Data;
 using LMS_API.Models;
-using LMS_API.Models.DTO.Assignment;
-using LMS_API.Models.DTO.Assignmentset;
-using LMS_API.Models.DTO.Teacher;
 using LMS_API.Services;
 using LMS_API.Services.Contract;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,6 +26,29 @@ builder.Services.AddScoped<IAssignmentService, AssignmentService>();
 builder.Services.AddScoped<IAssignmentSetService, AssignmentSetService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IStudyClassService, StudyClassService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("TeacherOnly", policy => policy.RequireRole("Teacher"));
+});
 
 builder.Services.AddCors(options =>
 {

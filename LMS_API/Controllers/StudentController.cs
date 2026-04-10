@@ -1,7 +1,8 @@
 ﻿using LMS_API.Models;
+using LMS_API.Models.DTO.Auth;
 using LMS_API.Models.DTO.Student;
-using LMS_API.Services;
 using LMS_API.Services.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS_API.Controllers
@@ -11,10 +12,15 @@ namespace LMS_API.Controllers
     public class StudentController:ControllerBase
     {
         private readonly IStudentService _studentService;
-        public StudentController(IStudentService studentService)
+        private readonly ITokenService _tokenService;
+
+        public StudentController(IStudentService studentService, ITokenService tokenService)
         {
             _studentService = studentService;
+            _tokenService = tokenService;
         }
+
+        [Authorize(Roles = "Teacher")]
         [HttpPost]
         public async Task<ActionResult<Student>> CreateStudent(StudentCreateDTO studentDTO)
         {
@@ -40,12 +46,25 @@ namespace LMS_API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<bool>> LoginStudent(StudentLoginDTO studentLoginDTO)
+        [AllowAnonymous]
+        public async Task<ActionResult<AuthResponseDTO>> LoginStudent(StudentLoginDTO studentLoginDTO)
         {
             try
             {
-                var isSuccess = await _studentService.LoginAsync(studentLoginDTO);
-                return Ok(isSuccess);
+                var student = await _studentService.AuthenticateAsync(studentLoginDTO);
+                if (student == null)
+                {
+                    return Unauthorized("Invalid email or password.");
+                }
+
+                var token = _tokenService.GenerateToken(student.Id, student.Email, "Student");
+                return Ok(new AuthResponseDTO
+                {
+                    Token = token,
+                    Role = "Student",
+                    Email = student.Email,
+                    ExpiresAtUtc = _tokenService.GetTokenExpiryUtc()
+                });
             }
             catch (Exception ex)
             {

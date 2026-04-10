@@ -66,7 +66,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { LoginTeacher } from '../Services/api';
+import { LoginTeacher, setAuthSession } from '../Services/api';
 import { useRouter } from 'vue-router';
 
 const email = ref('');
@@ -122,25 +122,23 @@ async function handleLogin() {
   try {
     const data = await LoginTeacher(email.value, password.value);
 
-    if (data !== true) {
+    if (!data?.token) {
       status.value = 'invalid';
-      loading.value = false;
       return;
     }
 
+    setAuthSession(data);
     status.value = 'success';
-
-    localStorage.setItem('user', JSON.stringify({
-      email: email.value,
-      role: 'Teacher'
-    }));
 
     setTimeout(() => {
       router.push('/teacher-dashboard');
     }, 500);
   } catch (error) {
     console.error('Login failed:', error);
-    status.value = 'error';
+    status.value = error.message?.toLowerCase().includes('invalid') || error.message?.toLowerCase().includes('unauthorized')
+      ? 'invalid'
+      : 'error';
+  } finally {
     loading.value = false;
   }
 }

@@ -4,7 +4,7 @@
       <li class="brand">
         <router-link to="/">LMS Portal</router-link>
       </li>
-      <template v-if="loggedIn">
+      <template v-if="loggedIn && isTeacher">
         <li><router-link to="/teacher-dashboard">Dashboard</router-link></li>
         <li><router-link to="/create-task">Opret Opgave</router-link></li>
       </template>
@@ -25,13 +25,17 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { clearAuthSession, getAuthSession } from '../Services/api';
 
 const router = useRouter();
 const route = useRoute();
 const loggedIn = ref(false);
+const isTeacher = ref(false);
 
 function checkLoginStatus() {
-  loggedIn.value = !!localStorage.getItem('user');
+  const auth = getAuthSession();
+  loggedIn.value = !!auth?.token;
+  isTeacher.value = auth?.role?.toLowerCase() === 'teacher';
 }
 
 onMounted(() => {
@@ -44,8 +48,9 @@ watch(() => route.path, () => {
 });
 
 function logout() {
-  localStorage.removeItem('user');
+  clearAuthSession();
   loggedIn.value = false;
+  isTeacher.value = false;
   router.replace('/');
 }
 </script>
