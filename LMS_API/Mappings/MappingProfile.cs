@@ -5,7 +5,6 @@ using LMS_API.Models.DTO.Assignmentset;
 using LMS_API.Models.DTO.Student;
 using LMS_API.Models.DTO.Teacher;
 
-
 namespace LMS_API.Mappings
 {
     public class MappingProfile : Profile
@@ -13,13 +12,23 @@ namespace LMS_API.Mappings
         public MappingProfile()
         {
             CreateMap<TeacherCreateDTO, Teacher>();
+
             CreateMap<Assignment, AssignmentCreateDTO>().ReverseMap();
             CreateMap<Assignment, AssignmentReadDTO>().ReverseMap();
-            CreateMap<AssignmentSet, AssignmentSetCreateDTO>().ReverseMap();
+
             CreateMap<StudentCreateDTO, Student>();
+            CreateMap<Student, StudentReadDTO>();
+
+            CreateMap<AssignmentSet, AssignmentSetCreateDTO>().ReverseMap();
             CreateMap<AssignmentSet, AssignmentSetReadDTO>()
                 .ForMember(dest => dest.Assignments,
                     opt => opt.MapFrom(src => src.AssignmentAssignmentSets.Select(x => x.Assignment)));
+
+            CreateMap<StudyClass, StudyClassCreateDTO>().ReverseMap();
+
+            CreateMap<StudyClass, StudyClassReadDTO>()
+                .ForMember(dest => dest.Students,
+                    opt => opt.MapFrom(src => src.StudentStudyClasses.Select(x => x.Student)));
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260327095252_Sprint-19")]
-    partial class Sprint19
+    [Migration("20260410134034_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -143,6 +143,139 @@ namespace LMS_API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LMS_API.Models.Student", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Students");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "shoaib.ali@student.ucl.dk",
+                            FirstName = "Shoaib",
+                            LastName = "Ali",
+                            Password = "hashed_password",
+                            UpdatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "imran.khan@student.ucl.dk",
+                            FirstName = "Imran",
+                            LastName = "Khan",
+                            Password = "hashed_password",
+                            UpdatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudentStudyClass", b =>
+                {
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudyClassId")
+                        .HasColumnType("int");
+
+                    b.HasKey("StudentId", "StudyClassId");
+
+                    b.HasIndex("StudyClassId");
+
+                    b.ToTable("StudentStudyClasses");
+
+                    b.HasData(
+                        new
+                        {
+                            StudentId = 1,
+                            StudyClassId = 1
+                        },
+                        new
+                        {
+                            StudentId = 1,
+                            StudyClassId = 2
+                        },
+                        new
+                        {
+                            StudentId = 2,
+                            StudyClassId = 1
+                        });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudyClass", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("StudyClasses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Class A",
+                            TeacherId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Class B",
+                            TeacherId = 1
+                        });
+                });
+
             modelBuilder.Entity("LMS_API.Models.Teacher", b =>
                 {
                     b.Property<int>("Id")
@@ -220,6 +353,36 @@ namespace LMS_API.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("LMS_API.Models.StudentStudyClass", b =>
+                {
+                    b.HasOne("LMS_API.Models.Student", "Student")
+                        .WithMany("StudentStudyClasses")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS_API.Models.StudyClass", "StudyClass")
+                        .WithMany("StudentStudyClasses")
+                        .HasForeignKey("StudyClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("StudyClass");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudyClass", b =>
+                {
+                    b.HasOne("LMS_API.Models.Teacher", "Teacher")
+                        .WithMany("StudyClasses")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Teacher");
+                });
+
             modelBuilder.Entity("LMS_API.Models.Assignment", b =>
                 {
                     b.Navigation("AssignmentAssignmentSets");
@@ -230,9 +393,21 @@ namespace LMS_API.Migrations
                     b.Navigation("AssignmentAssignmentSets");
                 });
 
+            modelBuilder.Entity("LMS_API.Models.Student", b =>
+                {
+                    b.Navigation("StudentStudyClasses");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudyClass", b =>
+                {
+                    b.Navigation("StudentStudyClasses");
+                });
+
             modelBuilder.Entity("LMS_API.Models.Teacher", b =>
                 {
                     b.Navigation("AssignmentSets");
+
+                    b.Navigation("StudyClasses");
                 });
 #pragma warning restore 612, 618
         }

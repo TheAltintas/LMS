@@ -1,7 +1,5 @@
 ﻿using LMS_API.Models;
-using LMS_API.Models.DTO.Assignment;
 using LMS_API.Models.DTO.Assignmentset;
-using LMS_API.Services;
 using LMS_API.Services.Contract;
 using Microsoft.AspNetCore.Mvc;
 

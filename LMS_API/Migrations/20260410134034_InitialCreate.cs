@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace LMS_API.Migrations
 {
     /// <inheritdoc />
-    public partial class Sprint19 : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,6 +31,24 @@ namespace LMS_API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Assignments", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Students",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Students", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,6 +92,28 @@ namespace LMS_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StudyClasses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TeacherId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudyClasses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StudyClasses_Teacher_TeacherId",
+                        column: x => x.TeacherId,
+                        principalTable: "Teacher",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AssignmentAssignmentSets",
                 columns: table => new
                 {
@@ -95,10 +137,43 @@ namespace LMS_API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "StudentStudyClasses",
+                columns: table => new
+                {
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    StudyClassId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentStudyClasses", x => new { x.StudentId, x.StudyClassId });
+                    table.ForeignKey(
+                        name: "FK_StudentStudyClasses_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentStudyClasses_StudyClasses_StudyClassId",
+                        column: x => x.StudyClassId,
+                        principalTable: "StudyClasses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Assignments",
                 columns: new[] { "Id", "ClassLevel", "CreatedDate", "PictureUrl", "Points", "Subject", "Type", "UpdatedDate", "VideoUrl" },
                 values: new object[] { 1, "A", new DateTime(2026, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://example.com/assignment1.png", 10m, "Mathematics", "Delprøve 1", null, "https://www.youtube.com/watch?v=dQw4w9WgXcQ" });
+
+            migrationBuilder.InsertData(
+                table: "Students",
+                columns: new[] { "Id", "CreatedDate", "Email", "FirstName", "LastName", "Password", "UpdatedDate" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified), "shoaib.ali@student.ucl.dk", "Shoaib", "Ali", "hashed_password", new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified), "imran.khan@student.ucl.dk", "Imran", "Khan", "hashed_password", new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                });
 
             migrationBuilder.InsertData(
                 table: "Teacher",
@@ -111,9 +186,28 @@ namespace LMS_API.Migrations
                 values: new object[] { 1, new DateTime(2026, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "Math Set 1", 1, null });
 
             migrationBuilder.InsertData(
+                table: "StudyClasses",
+                columns: new[] { "Id", "CreatedDate", "Name", "TeacherId", "UpdatedDate" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Class A", 1, null },
+                    { 2, new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Class B", 1, null }
+                });
+
+            migrationBuilder.InsertData(
                 table: "AssignmentAssignmentSets",
                 columns: new[] { "AssignmentId", "AssignmentSetId" },
                 values: new object[] { 1, 1 });
+
+            migrationBuilder.InsertData(
+                table: "StudentStudyClasses",
+                columns: new[] { "StudentId", "StudyClassId" },
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 1, 2 },
+                    { 2, 1 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AssignmentAssignmentSets_AssignmentSetId",
@@ -124,6 +218,16 @@ namespace LMS_API.Migrations
                 name: "IX_AssignmentSets_TeacherId",
                 table: "AssignmentSets",
                 column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentStudyClasses_StudyClassId",
+                table: "StudentStudyClasses",
+                column: "StudyClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudyClasses_TeacherId",
+                table: "StudyClasses",
+                column: "TeacherId");
         }
 
         /// <inheritdoc />
@@ -133,10 +237,19 @@ namespace LMS_API.Migrations
                 name: "AssignmentAssignmentSets");
 
             migrationBuilder.DropTable(
+                name: "StudentStudyClasses");
+
+            migrationBuilder.DropTable(
                 name: "AssignmentSets");
 
             migrationBuilder.DropTable(
                 name: "Assignments");
+
+            migrationBuilder.DropTable(
+                name: "Students");
+
+            migrationBuilder.DropTable(
+                name: "StudyClasses");
 
             migrationBuilder.DropTable(
                 name: "Teacher");

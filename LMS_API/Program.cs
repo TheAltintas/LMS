@@ -28,6 +28,7 @@ builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<IAssignmentService, AssignmentService>();
 builder.Services.AddScoped<IAssignmentSetService, AssignmentSetService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IStudyClassService, StudyClassService>();
 
 builder.Services.AddCors(options =>
 {

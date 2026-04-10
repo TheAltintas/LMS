@@ -10,6 +10,9 @@ namespace LMS_API.Data
         public DbSet<AssignmentSet> AssignmentSets { get; set; }
         public DbSet<Student> Students { get; set; }
 
+        public DbSet<StudyClass> StudyClasses { get; set; }
+        public DbSet<StudentStudyClass> StudentStudyClasses { get; set; }
+
         // MANY-TO-MANY relation between Assignment and AssignmentSet
         public DbSet<AssignmentAssignmentSet> AssignmentAssignmentSets { get; set; }
 
@@ -40,6 +43,22 @@ namespace LMS_API.Data
                 .HasOne(x => x.AssignmentSet)
                 .WithMany(s => s.AssignmentAssignmentSets)
                 .HasForeignKey(x => x.AssignmentSetId);
+
+             // -------------------------
+            // Student ↔ StudyClass (M:M)
+            // -------------------------
+            modelBuilder.Entity<StudentStudyClass>()
+                .HasKey(ssc => new { ssc.StudentId, ssc.StudyClassId });
+
+            modelBuilder.Entity<StudentStudyClass>()
+                .HasOne(ssc => ssc.Student)
+                .WithMany(s => s.StudentStudyClasses)
+                .HasForeignKey(ssc => ssc.StudentId);
+
+            modelBuilder.Entity<StudentStudyClass>()
+                .HasOne(ssc => ssc.StudyClass)
+                .WithMany(sc => sc.StudentStudyClasses)
+                .HasForeignKey(ssc => ssc.StudyClassId);
 
             // -------------------------
             // Seed Teacher
@@ -118,6 +137,46 @@ namespace LMS_API.Data
                     Password = "hashed_password",
                     CreatedDate = new DateTime(2026, 4, 7),
                     UpdatedDate = new DateTime(2026, 4, 7)
+                }
+            );
+            // -------------------------
+            // Seed StudyClass
+            // -------------------------
+            modelBuilder.Entity<StudyClass>().HasData(
+                new StudyClass
+                {
+                    Id = 1,
+                    Name = "Class A",
+                    TeacherId = 1,
+                    CreatedDate = new DateTime(2026, 4, 10)
+                },
+                new StudyClass
+                {
+                    Id = 2,
+                    Name = "Class B",
+                    TeacherId = 1,
+                    CreatedDate = new DateTime(2026, 4, 10)
+                }
+            );
+
+            // -------------------------
+            // Seed MANY-TO-MANY Student ↔ StudyClass
+            // -------------------------
+            modelBuilder.Entity<StudentStudyClass>().HasData(
+                new StudentStudyClass
+                {
+                    StudentId = 1,
+                    StudyClassId = 1
+                },
+                new StudentStudyClass
+                {
+                    StudentId = 1,
+                    StudyClassId = 2 // same student in multiple classes ✅
+                },
+                new StudentStudyClass
+                {
+                    StudentId = 2,
+                    StudyClassId = 1 // multiple students in same class ✅
                 }
             );
         }

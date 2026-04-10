@@ -22,6 +22,8 @@ namespace LMS_API.Models
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
 
+        public ICollection<StudyClass> StudyClasses { get; set; } = new List<StudyClass>();
+
         public ICollection<AssignmentSet> AssignmentSets { get; set; } = new List<AssignmentSet>();
     }
 }

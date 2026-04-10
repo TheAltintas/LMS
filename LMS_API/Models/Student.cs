@@ -17,6 +17,6 @@ namespace LMS_API.Models
 
         public DateTime? CreatedDate { get; set; } // optional. it can be nullable
         public DateTime? UpdatedDate { get; set; } // optional. it can be nullable
-
+        public ICollection<StudentStudyClass> StudentStudyClasses { get; set; } = new List<StudentStudyClass>();    
     }
 }
