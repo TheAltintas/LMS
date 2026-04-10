@@ -7,15 +7,16 @@
       <template v-if="loggedIn && isTeacher">
         <li><router-link to="/teacher-dashboard">Dashboard</router-link></li>
         <li><router-link to="/create-task">Opret Opgave</router-link></li>
+        <li><router-link to="/create-taskset">Opret Opgavesæt</router-link></li>  
       </template>
     </ul>
 
     <ul class="nav-right">
       <template v-if="loggedIn">
-        <li><a href="#" @click.prevent="logout">Logud</a></li>
+        <li><a href="#" @click.prevent="logout">Log ud</a></li>
       </template>
       <template v-else>
-        <li><router-link to="/login">Login</router-link></li>
+        <li><router-link to="/login">Log ind</router-link></li>
         <li><router-link to="/register">Opret konto</router-link></li>
       </template>
     </ul>

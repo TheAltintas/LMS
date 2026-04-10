@@ -52,6 +52,9 @@
           <router-link to="/create-task" class="action-btn">
             <span>📝</span> Opret opgave
           </router-link>
+          <router-link to="/create-taskset" class="action-btn">
+            <span>�</span> Opret opgavesæt
+          </router-link>
         </div>
       </div>
     </div>

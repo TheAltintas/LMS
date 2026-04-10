@@ -2,7 +2,6 @@
   <div class="page-shell">
     <div class="task-form-container">
       <div class="form-header">
-        <p class="badge">Task Management</p>
         <h1>Opret ny opgave</h1>
         <p class="subtitle">
           Udfyld detaljerne nedenfor for at oprette en ny opgave til dine elever
@@ -110,7 +109,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { CreateTask } from '../Services/api';
+import { CreateAssignment   } from '../Services/api';
 
 const form = reactive({
   subject: '',
@@ -185,7 +184,7 @@ async function handleSubmit() {
   loading.value = true;
 
   try {
-    await CreateTask({
+    await CreateAssignment({
       Points: Number(form.point),
       Type: form.delprove,
       ClassLevel: form.niveau,
@@ -194,7 +193,7 @@ async function handleSubmit() {
       VideoUrl: form.relatedVideo || null
     });
 
-    showToast('Task created successfully!', 'success');
+    showToast('Assignment created successfully!', 'success');
     resetForm();
   } catch (error) {
     console.error('Failed to create task:', error);

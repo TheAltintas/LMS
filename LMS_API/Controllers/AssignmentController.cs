@@ -49,8 +49,6 @@ namespace LMS_API.Controllers
             }
         }
 
-
-        [HttpGet]
         [HttpGet("teacher")]
         public async Task<ActionResult<IEnumerable<Assignment>>> GetAllAssignments()
         {
