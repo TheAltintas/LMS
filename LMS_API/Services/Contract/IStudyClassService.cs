@@ -5,8 +5,8 @@ namespace LMS_API.Services.Contract
 {
     public interface IStudyClassService
     {
-        Task<StudyClassReadDTO> CreateStudyClassAsync(StudyClassCreateDTO studyClassDTO);
-        Task<bool> DeleteStudyClassAsync(int id);
-        Task<StudyClassReadDTO?> AddStudentsToStudyClassAsync(StudyClassSyncDTO dto);
+        Task<StudyClassReadDTO> CreateStudyClassAsync(StudyClassCreateDTO studyClassDTO, int teacherId);
+        Task<bool> DeleteStudyClassAsync(int id, int teacherId);
+        Task<StudyClassReadDTO?> AddStudentsToStudyClassAsync(StudyClassSyncDTO dto, int teacherId);
     }
 }

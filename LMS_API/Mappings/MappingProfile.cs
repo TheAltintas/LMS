@@ -1,5 +1,6 @@
 using AutoMapper;
 using LMS_API.Models;
+using LMS_API.Models.DTO;
 using LMS_API.Models.DTO.Assignment;
 using LMS_API.Models.DTO.Assignmentset;
 using LMS_API.Models.DTO.Student;
@@ -19,12 +20,12 @@ namespace LMS_API.Mappings
             CreateMap<StudentCreateDTO, Student>();
             CreateMap<Student, StudentReadDTO>();
 
-            CreateMap<AssignmentSet, AssignmentSetCreateDTO>().ReverseMap();
+            CreateMap<AssignmentSet, AssignmentSetCreateDTO>();
             CreateMap<AssignmentSet, AssignmentSetReadDTO>()
                 .ForMember(dest => dest.Assignments,
                     opt => opt.MapFrom(src => src.AssignmentAssignmentSets.Select(x => x.Assignment)));
 
-            CreateMap<StudyClass, StudyClassCreateDTO>().ReverseMap();
+            CreateMap<StudyClass, StudyClassCreateDTO>();
 
             CreateMap<StudyClass, StudyClassReadDTO>()
                 .ForMember(dest => dest.Students,

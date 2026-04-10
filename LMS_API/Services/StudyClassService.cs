@@ -17,12 +17,12 @@ public class StudyClassService : IStudyClassService
         _context = context;
         _mapper = mapper;
     }
-    public async Task<StudyClassReadDTO> CreateStudyClassAsync(StudyClassCreateDTO dto)
+    public async Task<StudyClassReadDTO> CreateStudyClassAsync(StudyClassCreateDTO dto, int teacherId)
     {
         var studyClass = new StudyClass
         {
             Name = dto.Name,
-            TeacherId = dto.TeacherId,
+            TeacherId = teacherId,
             CreatedDate = DateTime.UtcNow
         };
 
@@ -37,9 +37,10 @@ public class StudyClassService : IStudyClassService
 
         return _mapper.Map<StudyClassReadDTO>(fullEntity);
     }
-    public async Task<bool> DeleteStudyClassAsync(int id)
+    public async Task<bool> DeleteStudyClassAsync(int id, int teacherId)
     {
-        var studyClass = await _context.StudyClasses.FindAsync(id);
+        var studyClass = await _context.StudyClasses
+            .FirstOrDefaultAsync(sc => sc.Id == id && sc.TeacherId == teacherId);
 
         if (studyClass == null)
             return false;
@@ -50,7 +51,7 @@ public class StudyClassService : IStudyClassService
         return true;
     }
 
-    public async Task<StudyClassReadDTO?> AddStudentsToStudyClassAsync(StudyClassSyncDTO dto)
+    public async Task<StudyClassReadDTO?> AddStudentsToStudyClassAsync(StudyClassSyncDTO dto, int teacherId)
     {
         if (dto.Id == null)
             return null;
@@ -60,7 +61,7 @@ public class StudyClassService : IStudyClassService
         var studyClass = await _context.StudyClasses
             .Include(sc => sc.StudentStudyClasses)
                 .ThenInclude(x => x.Student)
-            .FirstOrDefaultAsync(sc => sc.Id == studyClassId);
+            .FirstOrDefaultAsync(sc => sc.Id == studyClassId && sc.TeacherId == teacherId);
 
         if (studyClass == null)
             return null;

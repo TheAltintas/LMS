@@ -12,10 +12,12 @@ namespace LMS_API.Controllers
     public class StudyClassController : ControllerBase
     {
         private readonly IStudyClassService _studyClassService;
+        private readonly ITokenService _tokenService;
 
-        public StudyClassController(IStudyClassService studyClassService)
+        public StudyClassController(IStudyClassService studyClassService, ITokenService tokenService)
         {
             _studyClassService = studyClassService;
+            _tokenService = tokenService;
         }
 
         [HttpPost]
@@ -24,7 +26,10 @@ namespace LMS_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _studyClassService.CreateStudyClassAsync(dto);
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                return Unauthorized("Missing or invalid teacher identity.");
+
+            var result = await _studyClassService.CreateStudyClassAsync(dto, teacherId);
 
             return Ok(result);
         }
@@ -33,7 +38,10 @@ namespace LMS_API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var success = await _studyClassService.DeleteStudyClassAsync(id);
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                return Unauthorized("Missing or invalid teacher identity.");
+
+            var success = await _studyClassService.DeleteStudyClassAsync(id, teacherId);
 
             if (!success)
                 return NotFound($"StudyClass with id {id} not found");
@@ -47,7 +55,10 @@ namespace LMS_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _studyClassService.AddStudentsToStudyClassAsync(dto);
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                return Unauthorized("Missing or invalid teacher identity.");
+
+            var result = await _studyClassService.AddStudentsToStudyClassAsync(dto, teacherId);
 
             if (result == null)
                 return NotFound();

@@ -2,6 +2,7 @@
 
 namespace LMS_API.Models.DTO.Student
 {
+    // object for when a teacher register a student, containing all necessary info including password
     public class StudentCreateDTO
     {
         [Required(ErrorMessage = "First name is required")]

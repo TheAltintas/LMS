@@ -19,13 +19,14 @@ namespace LMS_API.Services
             _mapper = mapper;
         }
 
-        public async Task<AssignmentSet> CreateAssignmentSetAsync(AssignmentSetCreateDTO assignmentSetDTO)
+        public async Task<AssignmentSet> CreateAssignmentSetAsync(AssignmentSetCreateDTO assignmentSetDTO, int teacherId)
         {
             try
             {
                 if (assignmentSetDTO == null) return null;
 
                 AssignmentSet assignmentSet = _mapper.Map<AssignmentSet>(assignmentSetDTO);
+            assignmentSet.TeacherId = teacherId;
                 assignmentSet.CreatedDate = DateTime.Now;
 
                 await _db.AssignmentSets.AddAsync(assignmentSet);
@@ -55,13 +56,13 @@ namespace LMS_API.Services
                 return Enumerable.Empty<AssignmentSetReadDTO>();
             }
 }
-        public async Task<bool> AddAssignmentToSetAsync(int assignmentSetId, int assignmentId)
+        public async Task<bool> AddAssignmentToSetAsync(int assignmentSetId, int assignmentId, int teacherId)
         {
             try
             {
                 var assignmentSet = await _db.AssignmentSets
                     .Include(x => x.AssignmentAssignmentSets)
-                    .FirstOrDefaultAsync(x => x.Id == assignmentSetId);
+                    .FirstOrDefaultAsync(x => x.Id == assignmentSetId && x.TeacherId == teacherId);
 
                 var assignment = await _db.Assignments.FindAsync(assignmentId);
 

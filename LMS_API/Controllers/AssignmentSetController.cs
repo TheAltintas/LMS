@@ -12,9 +12,12 @@ namespace LMS_API.Controllers
     public class AssignmentSetController:ControllerBase
     {
         private readonly IAssignmentSetService _assignmentSetService;
-        public AssignmentSetController(IAssignmentSetService assignmentSetService)
+        private readonly ITokenService _tokenService;
+
+        public AssignmentSetController(IAssignmentSetService assignmentSetService, ITokenService tokenService)
         {
             _assignmentSetService = assignmentSetService;
+            _tokenService = tokenService;
         }
 
         [HttpPost]
@@ -26,12 +29,17 @@ namespace LMS_API.Controllers
                 {
                     return BadRequest("Assignment Set data is required");
                 }
-                var assignmentSet = await _assignmentSetService.CreateAssignmentSetAsync(assignmentSetDTO);
+                if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                {
+                    return Unauthorized("Missing or invalid teacher identity.");
+                }
+
+                var assignmentSet = await _assignmentSetService.CreateAssignmentSetAsync(assignmentSetDTO, teacherId);
                 if (assignmentSet == null)
                 {
                     return BadRequest("Could not create assignment set.");
                 }
-                return CreatedAtAction(nameof(CreateAssignmentSet), new { id = assignmentSet.Id }, assignmentSet);// instead of Ok
+                return CreatedAtAction(nameof(CreateAssignmentSet), new { id = assignmentSet.Id }, assignmentSet);
             }
             catch (Exception ex)
             {
@@ -40,15 +48,20 @@ namespace LMS_API.Controllers
             }
         }
 
-        [HttpGet("teacher/{teacherId:int}")]
-        public async Task<ActionResult<IEnumerable<AssignmentSet>>> GetAllAssignmentSet(int teacherId)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AssignmentSet>>> GetAllAssignmentSet()
         {
             try
             {
+                if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                {
+                    return Unauthorized("Missing or invalid teacher identity.");
+                }
+
                 var assignmentSet = await _assignmentSetService.GetAllAssignmentSetsByTeacherAsync(teacherId);
                 if (assignmentSet == null || !assignmentSet.Any())
                 {
-                    return NotFound($"No assignment set found for Teacher ID {teacherId}");
+                    return NotFound("No assignment sets found.");
                 }
                 return Ok(assignmentSet);
             }
@@ -61,7 +74,12 @@ namespace LMS_API.Controllers
         [HttpPost("{assignmentSetId:int}/add-assignment/{assignmentId:int}")]
         public async Task<ActionResult> AddAssignmentToSet(int assignmentSetId, int assignmentId)
         {
-            var result = await _assignmentSetService.AddAssignmentToSetAsync(assignmentSetId, assignmentId);
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+            {
+                return Unauthorized("Missing or invalid teacher identity.");
+            }
+
+            var result = await _assignmentSetService.AddAssignmentToSetAsync(assignmentSetId, assignmentId, teacherId);
             if (!result) return BadRequest("Could not add assignment to set.");
             return Ok("Assignment added successfully.");
         }
