@@ -37,6 +37,34 @@ public class StudyClassService : IStudyClassService
 
         return _mapper.Map<StudyClassReadDTO>(fullEntity);
     }
+
+    public async Task<IEnumerable<StudyClassReadDTO>> GetStudyClassesByTeacherAsync(int teacherId)
+    {
+        var classes = await _context.StudyClasses
+            .AsNoTracking()
+            .Include(sc => sc.StudentStudyClasses)
+                .ThenInclude(x => x.Student)
+            .Where(sc => sc.TeacherId == teacherId)
+            .OrderByDescending(sc => sc.CreatedDate)
+            .ToListAsync();
+
+        return _mapper.Map<IEnumerable<StudyClassReadDTO>>(classes);
+    }
+
+    public async Task<StudyClassReadDTO?> GetStudyClassByIdAsync(int id, int teacherId)
+    {
+        var studyClass = await _context.StudyClasses
+            .AsNoTracking()
+            .Include(sc => sc.StudentStudyClasses)
+                .ThenInclude(x => x.Student)
+            .FirstOrDefaultAsync(sc => sc.Id == id && sc.TeacherId == teacherId);
+
+        if (studyClass == null)
+            return null;
+
+        return _mapper.Map<StudyClassReadDTO>(studyClass);
+    }
+
     public async Task<bool> DeleteStudyClassAsync(int id, int teacherId)
     {
         var studyClass = await _context.StudyClasses

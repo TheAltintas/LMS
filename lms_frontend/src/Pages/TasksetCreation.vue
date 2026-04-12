@@ -88,18 +88,6 @@ onMounted(loadAssignments);
   margin-bottom: 1.5rem;
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: rgba(20, 184, 166, 0.12);
-  color: #0f766e;
-  margin-bottom: 0.6rem;
-}
-
 h1 {
   margin: 0;
   font-size: 2rem;

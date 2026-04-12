@@ -76,6 +76,12 @@ namespace LMS_API.Data
                 .HasForeignKey(sc => sc.TeacherId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.CreatedByTeacher)
+                .WithMany(t => t.CreatedStudents)
+                .HasForeignKey(s => s.CreatedByTeacherId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             // -------------------------
             // Seed Teacher
             // -------------------------

@@ -8,6 +8,8 @@
         <li><router-link to="/teacher-dashboard">Dashboard</router-link></li>
         <li><router-link to="/create-task">Opret Opgave</router-link></li>
         <li><router-link to="/create-taskset">Opret Opgavesæt</router-link></li>  
+        <li><router-link to="/create-studyclass">Opret klasse</router-link></li>
+        <li><router-link to="/register-student">Opret elev(er)</router-link></li>  
       </template>
     </ul>
 
@@ -35,8 +37,8 @@ const isTeacher = ref(false);
 
 function checkLoginStatus() {
   const auth = getAuthSession();
-  loggedIn.value = !!auth?.token;
-  isTeacher.value = auth?.role?.toLowerCase() === 'teacher';
+  loggedIn.value = !!(auth?.token || auth?.Token);
+  isTeacher.value = (auth?.role || auth?.Role || '').toLowerCase() === 'teacher';
 }
 
 onMounted(() => {

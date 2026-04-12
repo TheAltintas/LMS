@@ -34,6 +34,29 @@ namespace LMS_API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("teacher")]
+        public async Task<ActionResult<IEnumerable<StudyClassReadDTO>>> GetByTeacher()
+        {
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                return Unauthorized("Missing or invalid teacher identity.");
+
+            var result = await _studyClassService.GetStudyClassesByTeacherAsync(teacherId);
+            return Ok(result);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<StudyClassReadDTO>> GetById(int id)
+        {
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                return Unauthorized("Missing or invalid teacher identity.");
+
+            var result = await _studyClassService.GetStudyClassByIdAsync(id, teacherId);
+            if (result == null)
+                return NotFound($"StudyClass with id {id} not found");
+
+            return Ok(result);
+        }
+
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)

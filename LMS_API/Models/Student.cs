@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace LMS_API.Models
 {
@@ -17,6 +18,11 @@ namespace LMS_API.Models
 
         public DateTime? CreatedDate { get; set; } // optional. it can be nullable
         public DateTime? UpdatedDate { get; set; } // optional. it can be nullable
+
+        public int? CreatedByTeacherId { get; set; }
+        [JsonIgnore]
+        public Teacher? CreatedByTeacher { get; set; }
+
         public ICollection<StudentStudyClass> StudentStudyClasses { get; set; } = new List<StudentStudyClass>();    
     }
 }

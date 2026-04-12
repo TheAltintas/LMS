@@ -227,21 +227,6 @@ async function handleSubmit() {
   margin-bottom: 2rem;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  border-radius: 999px;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #6366f1;
-  margin-bottom: 0.5rem;
-}
-
 .form-header h1 {
   font-size: 2rem;
   color: #0f172a;
@@ -296,10 +281,6 @@ async function handleSubmit() {
   color: #334155;
 }
 
-.required {
-  color: #ef4444;
-}
-
 .optional {
   color: #94a3b8;
   font-weight: 400;
@@ -318,17 +299,6 @@ input[type="text"] {
   color: #0f172a;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-textarea {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
-  font-size: 0.95rem;
-  color: #0f172a;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  width: 100%;
-}
-
 select {
   cursor: pointer;
   appearance: none;
@@ -338,14 +308,9 @@ select {
   padding-right: 2.5rem;
 }
 
-textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
 select:focus,
 input:focus,
-textarea:focus {
+input:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
@@ -359,16 +324,6 @@ textarea:focus {
 small {
   color: #ef4444;
   font-size: 0.8rem;
-}
-
-.char-count {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  text-align: right;
-}
-
-.char-count.warning {
-  color: #f59e0b;
 }
 
 .form-actions {

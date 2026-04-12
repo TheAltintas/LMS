@@ -2,7 +2,6 @@
 using LMS_API.Data;
 using LMS_API.Models;
 using LMS_API.Models.DTO.AssignmentSet;
-using LMS_API.Models.DTO.Assignment;
 using LMS_API.Services.Contract;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +25,7 @@ namespace LMS_API.Services
                 if (assignmentSetDTO == null) return null;
 
                 AssignmentSet assignmentSet = _mapper.Map<AssignmentSet>(assignmentSetDTO);
-            assignmentSet.TeacherId = teacherId;
+                assignmentSet.TeacherId = teacherId;
                 assignmentSet.CreatedDate = DateTime.Now;
 
                 await _db.AssignmentSets.AddAsync(assignmentSet);
@@ -53,40 +52,12 @@ namespace LMS_API.Services
             }
             catch (Exception)
             {
-                return Enumerable.Empty<AssignmentSetReadDTO>();
+                return null;
             }
-}
+        }       
         public async Task<bool> AddAssignmentToSetAsync(int assignmentSetId, int assignmentId, int teacherId)
         {
-            try
-            {
-                var assignmentSet = await _db.AssignmentSets
-                    .Include(x => x.AssignmentAssignmentSets)
-                    .FirstOrDefaultAsync(x => x.Id == assignmentSetId && x.TeacherId == teacherId);
-
-                var assignment = await _db.Assignments.FindAsync(assignmentId);
-
-                if (assignmentSet == null || assignment == null)
-                    return false;
-
-                // Prevent duplicates
-                if (!assignmentSet.AssignmentAssignmentSets.Any(x => x.AssignmentId == assignmentId))
-                {
-                    assignmentSet.AssignmentAssignmentSets.Add(new AssignmentAssignmentSet
-                    {
-                        AssignmentSetId = assignmentSetId,
-                        AssignmentId = assignmentId
-                    });
-
-                    await _db.SaveChangesAsync();
-                }
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

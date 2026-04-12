@@ -19,7 +19,8 @@ export function clearAuthSession() {
 }
 
 export function getAccessToken() {
-  return getAuthSession()?.token ?? null;
+  const auth = getAuthSession();
+  return auth?.token ?? auth?.Token ?? null;
 }
 
 function parseJwtPayload(token) {
@@ -165,5 +166,44 @@ export async function GetTeacherAssignmentSets() {
 export async function AddAssignmentToAssignmentSet(assignmentSetId, assignmentId) {
   return await request(`/assignmentset/${assignmentSetId}/add-assignment/${assignmentId}`, {
     method: 'POST'
+  }, true);
+}
+
+export async function RegisterStudent(firstName, lastName, email, password) {
+  return await request('/student', {
+    method: 'POST',
+    body: JSON.stringify({ firstName, lastName, email, password })
+  }, true);
+}
+
+export async function GetTeacherStudents() {
+  return await request('/student/teacher', {
+    method: 'GET'
+  }, true);
+}
+
+export async function GetTeacherStudyClasses() {
+  return await request('/studyclass/teacher', {
+    method: 'GET'
+  }, true);
+}
+
+export async function GetStudyClassById(id) {
+  return await request(`/studyclass/${id}`, {
+    method: 'GET'
+  }, true);
+}
+
+export async function CreateStudyClass(name) {
+  return await request('/studyclass', {
+    method: 'POST',
+    body: JSON.stringify({ name })
+  }, true);
+}
+
+export async function AddStudentsToStudyClass(studyClassId, studentIds) {
+  return await request('/studyclass', {
+    method: 'PUT',
+    body: JSON.stringify({ id: studyClassId, studentIds })
   }, true);
 }

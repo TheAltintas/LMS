@@ -19,7 +19,7 @@ namespace LMS_API.Services
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Student> RegisterStudentAsync(StudentCreateDTO studentDTO)
+        public async Task<Student> RegisterStudentAsync(StudentCreateDTO studentDTO, int teacherId)
         {
             try
             {
@@ -36,6 +36,7 @@ namespace LMS_API.Services
                 }
                 Student student = _mapper.Map<Student>(studentDTO);
                 student.CreatedDate = DateTime.Now;
+                student.CreatedByTeacherId = teacherId;
                 await _db.Students.AddAsync(student);
                 await _db.SaveChangesAsync();
                 _logger.LogInformation($"Student {student.Email} registered successfully");
@@ -47,6 +48,18 @@ namespace LMS_API.Services
                 return null;
             }
         }
+
+        public async Task<IEnumerable<StudentReadDTO>> GetStudentsCreatedByTeacherAsync(int teacherId)
+        {
+            var students = await _db.Students
+                .AsNoTracking()
+                .Where(s => s.CreatedByTeacherId == teacherId)
+                .OrderByDescending(s => s.CreatedDate)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<StudentReadDTO>>(students);
+        }
+
         public async Task<Student?> AuthenticateAsync(StudentLoginDTO loginDTO)
         {
             return await _db.Students

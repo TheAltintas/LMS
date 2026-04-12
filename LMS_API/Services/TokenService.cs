@@ -54,7 +54,6 @@ namespace LMS_API.Services
             return DateTime.UtcNow.AddMinutes(expiryMinutes);
         }
 
-        // extract teacherId from token 
         public bool TryGetTeacherId(ClaimsPrincipal user, out int teacherId)
         {
             teacherId = default;

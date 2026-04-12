@@ -22,7 +22,7 @@ namespace LMS_API.Controllers
 
         [Authorize(Roles = "Teacher")]
         [HttpPost]
-        public async Task<ActionResult<Student>> CreateStudent(StudentCreateDTO studentDTO)
+        public async Task<ActionResult<StudentReadDTO>> CreateStudent(StudentCreateDTO studentDTO)
         {
             try
             {
@@ -30,12 +30,33 @@ namespace LMS_API.Controllers
                 {
                     return BadRequest("Student data is required");
                 }
-                var student = await _studentService.RegisterStudentAsync(studentDTO);
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                {
+                    return Unauthorized("Missing or invalid teacher identity.");
+                }
+
+                var student = await _studentService.RegisterStudentAsync(studentDTO, teacherId);
                 if (student == null)
                 {
                     return Conflict($"'{studentDTO.Email}' already exists.");
                 }
-                return CreatedAtAction(nameof(CreateStudent), new { id = student.Id }, student);// instead of Ok
+
+                var studentReadDTO = new StudentReadDTO
+                {
+                    Id = student.Id,
+                    FirstName = student.FirstName,
+                    LastName = student.LastName,
+                    Email = student.Email,
+                    CreatedByTeacherId = student.CreatedByTeacherId
+                };
+
+                return CreatedAtAction(nameof(CreateStudent), new { id = student.Id }, studentReadDTO);
 
             }
             catch (Exception ex)
@@ -43,6 +64,19 @@ namespace LMS_API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError,
                    $"An error occurred while creating the student: {ex.Message} ");
             }
+        }
+
+        [Authorize(Roles = "Teacher")]
+        [HttpGet("teacher")]
+        public async Task<ActionResult<IEnumerable<StudentReadDTO>>> GetStudentsCreatedByTeacher()
+        {
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+            {
+                return Unauthorized("Missing or invalid teacher identity.");
+            }
+
+            var students = await _studentService.GetStudentsCreatedByTeacherAsync(teacherId);
+            return Ok(students);
         }
 
         [HttpPost("login")]
