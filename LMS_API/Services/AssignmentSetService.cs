@@ -18,7 +18,7 @@ namespace LMS_API.Services
             _mapper = mapper;
         }
 
-        public async Task<AssignmentSet> CreateAssignmentSetAsync(AssignmentSetCreateDTO assignmentSetDTO, int teacherId)
+        public async Task<AssignmentSetReadDTO?> CreateAssignmentSetAsync(AssignmentSetCreateDTO assignmentSetDTO, int teacherId)
         {
             try
             {
@@ -30,7 +30,12 @@ namespace LMS_API.Services
 
                 await _db.AssignmentSets.AddAsync(assignmentSet);
                 await _db.SaveChangesAsync();
-                return assignmentSet;
+                var setWithAssignments = await _db.AssignmentSets
+                    .Include(x => x.AssignmentAssignmentSets)
+                        .ThenInclude(link => link.Assignment)
+                    .FirstOrDefaultAsync(x => x.Id == assignmentSet.Id);
+
+                return _mapper.Map<AssignmentSetReadDTO>(setWithAssignments ?? assignmentSet);
             }
             catch (Exception)
             {
@@ -52,7 +57,7 @@ namespace LMS_API.Services
             }
             catch (Exception)
             {
-                return null;
+                return Enumerable.Empty<AssignmentSetReadDTO>();
             }
         }       
         public async Task<bool> AddAssignmentToSetAsync(int assignmentSetId, int assignmentId, int teacherId)

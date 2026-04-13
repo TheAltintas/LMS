@@ -21,7 +21,7 @@ namespace LMS_API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AssignmentSet>> CreateAssignmentSet(AssignmentSetCreateDTO assignmentSetDTO)
+        public async Task<ActionResult<AssignmentSetReadDTO>> CreateAssignmentSet(AssignmentSetCreateDTO assignmentSetDTO)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace LMS_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AssignmentSet>>> GetAllAssignmentSet()
+        public async Task<ActionResult<IEnumerable<AssignmentSetReadDTO>>> GetAllAssignmentSet()
         {
             try
             {

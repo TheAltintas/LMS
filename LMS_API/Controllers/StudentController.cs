@@ -52,8 +52,7 @@ namespace LMS_API.Controllers
                     Id = student.Id,
                     FirstName = student.FirstName,
                     LastName = student.LastName,
-                    Email = student.Email,
-                    CreatedByTeacherId = student.CreatedByTeacherId
+                    Email = student.Email
                 };
 
                 return CreatedAtAction(nameof(CreateStudent), new { id = student.Id }, studentReadDTO);

@@ -22,7 +22,7 @@ namespace LMS_API.Controllers
         
 
         [HttpPost]
-        public async Task<ActionResult<Assignment>> CreateAssignment(AssignmentCreateDTO assignmentDTO)
+        public async Task<ActionResult<AssignmentReadDTO>> CreateAssignment(AssignmentCreateDTO assignmentDTO)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace LMS_API.Controllers
         }
 
         [HttpGet("teacher")]
-        public async Task<ActionResult<IEnumerable<Assignment>>> GetAllAssignments()
+        public async Task<ActionResult<IEnumerable<AssignmentReadDTO>>> GetAllAssignments()
         {
             try
             {

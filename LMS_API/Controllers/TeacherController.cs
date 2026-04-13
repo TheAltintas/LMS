@@ -25,7 +25,7 @@
             }
             [AllowAnonymous]
             [HttpPost]
-            public async Task<ActionResult<Teacher>> CreateTeacher(TeacherCreateDTO teacherDTO)
+            public async Task<ActionResult<TeacherReadDTO>> CreateTeacher(TeacherCreateDTO teacherDTO)
             {
                 try
                 {
@@ -38,7 +38,16 @@
                     {
                         return Conflict($"'{teacherDTO.Email}' already exists.");
                     }
-                    return CreatedAtAction(nameof(CreateTeacher), new { id = teacher.Id }, teacher);// instead of Ok
+
+                    var teacherReadDTO = new TeacherReadDTO
+                    {
+                        Id = teacher.Id,
+                        FirstName = teacher.FirstName,
+                        LastName = teacher.LastName,
+                        Email = teacher.Email
+                    };
+
+                    return CreatedAtAction(nameof(CreateTeacher), new { id = teacher.Id }, teacherReadDTO);
 
                 }
                 catch (Exception ex)

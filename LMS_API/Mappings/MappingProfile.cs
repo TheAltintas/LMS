@@ -13,6 +13,7 @@ namespace LMS_API.Mappings
         public MappingProfile()
         {
             CreateMap<TeacherCreateDTO, Teacher>();
+            CreateMap<Teacher, TeacherReadDTO>();
 
             CreateMap<Assignment, AssignmentCreateDTO>().ReverseMap();
             CreateMap<Assignment, AssignmentReadDTO>().ReverseMap();

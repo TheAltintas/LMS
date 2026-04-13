@@ -9,6 +9,5 @@ namespace LMS_API.Models.DTO.StudyClass
         [Required]
         public int? Id { get; set; } 
         public List<int> StudentIds { get; set; } = new();
-        public DateTime? UpdatedDate { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace LMS_API.Services
             _mapper = mapper;
         }
 
-        public async Task<Assignment> CreateAssignmentAsync(AssignmentCreateDTO assignmentDTO, int teacherId)
+        public async Task<AssignmentReadDTO?> CreateAssignmentAsync(AssignmentCreateDTO assignmentDTO, int teacherId)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace LMS_API.Services
 
                 await _db.Assignments.AddAsync(assignment);
                 await _db.SaveChangesAsync();
-                return assignment;
+                return _mapper.Map<AssignmentReadDTO>(assignment);
             }
             catch (Exception)
             {
@@ -38,17 +38,19 @@ namespace LMS_API.Services
             }
         }
 
-        public async Task<IEnumerable<Assignment>> GetAllAssignmentsAsync(int teacherId)
+        public async Task<IEnumerable<AssignmentReadDTO>> GetAllAssignmentsAsync(int teacherId)
         {
             try
             {
-                return await _db.Assignments
+                var assignments = await _db.Assignments
                     .Where(a => a.TeacherId == teacherId)
                     .ToListAsync();
+
+                return _mapper.Map<IEnumerable<AssignmentReadDTO>>(assignments);
             }
             catch (Exception)
             {
-                return Enumerable.Empty<Assignment>();
+                return Enumerable.Empty<AssignmentReadDTO>();
             }
         }
 

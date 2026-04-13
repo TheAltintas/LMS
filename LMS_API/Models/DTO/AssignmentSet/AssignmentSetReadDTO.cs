@@ -1,4 +1,4 @@
-﻿using LMS_API.Models.DTO.Assignment;
+using LMS_API.Models.DTO.Assignment;
 
 namespace LMS_API.Models.DTO.AssignmentSet
 {

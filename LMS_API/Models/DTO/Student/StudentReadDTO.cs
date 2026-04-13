@@ -11,7 +11,5 @@ namespace LMS_API.Models.DTO.Student
         public required string LastName { get; set; }
 
         public required string Email { get; set; }
-
-        public int? CreatedByTeacherId { get; set; }
     }
 }
