@@ -22,6 +22,268 @@ namespace LMS_API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("LMS_API.Models.Assignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClassLevel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PictureUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Points")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("Assignments");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClassLevel = "A",
+                            CreatedDate = new DateTime(2026, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PictureUrl = "https://example.com/assignment1.png",
+                            Points = 10m,
+                            Subject = "Mathematics",
+                            TeacherId = 1,
+                            Type = "Delprøve 1",
+                            VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                        });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.AssignmentAssignmentSet", b =>
+                {
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssignmentSetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AssignmentId", "AssignmentSetId");
+
+                    b.HasIndex("AssignmentSetId");
+
+                    b.ToTable("AssignmentAssignmentSets");
+
+                    b.HasData(
+                        new
+                        {
+                            AssignmentId = 1,
+                            AssignmentSetId = 1
+                        });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.AssignmentSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("AssignmentSets");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Math Set 1",
+                            TeacherId = 1
+                        });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.Student", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedByTeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByTeacherId");
+
+                    b.ToTable("Students");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "shoaib.ali@student.ucl.dk",
+                            FirstName = "Shoaib",
+                            LastName = "Ali",
+                            Password = "hashed_password",
+                            UpdatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "imran.khan@student.ucl.dk",
+                            FirstName = "Imran",
+                            LastName = "Khan",
+                            Password = "hashed_password",
+                            UpdatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudentStudyClass", b =>
+                {
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudyClassId")
+                        .HasColumnType("int");
+
+                    b.HasKey("StudentId", "StudyClassId");
+
+                    b.HasIndex("StudyClassId");
+
+                    b.ToTable("StudentStudyClasses");
+
+                    b.HasData(
+                        new
+                        {
+                            StudentId = 1,
+                            StudyClassId = 1
+                        },
+                        new
+                        {
+                            StudentId = 1,
+                            StudyClassId = 2
+                        },
+                        new
+                        {
+                            StudentId = 2,
+                            StudyClassId = 1
+                        });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudyClass", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("StudyClasses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Class A",
+                            TeacherId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Class B",
+                            TeacherId = 1
+                        });
+                });
+
             modelBuilder.Entity("LMS_API.Models.Teacher", b =>
                 {
                     b.Property<int>("Id")
@@ -67,6 +329,118 @@ namespace LMS_API.Migrations
                             Password = "1234567890",
                             UpdatedDate = new DateTime(2026, 3, 13, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
+                });
+
+            modelBuilder.Entity("LMS_API.Models.Assignment", b =>
+                {
+                    b.HasOne("LMS_API.Models.Teacher", "Teacher")
+                        .WithMany("Assignments")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.AssignmentAssignmentSet", b =>
+                {
+                    b.HasOne("LMS_API.Models.Assignment", "Assignment")
+                        .WithMany("AssignmentAssignmentSets")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS_API.Models.AssignmentSet", "AssignmentSet")
+                        .WithMany("AssignmentAssignmentSets")
+                        .HasForeignKey("AssignmentSetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+
+                    b.Navigation("AssignmentSet");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.AssignmentSet", b =>
+                {
+                    b.HasOne("LMS_API.Models.Teacher", "Teacher")
+                        .WithMany("AssignmentSets")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.Student", b =>
+                {
+                    b.HasOne("LMS_API.Models.Teacher", "CreatedByTeacher")
+                        .WithMany("CreatedStudents")
+                        .HasForeignKey("CreatedByTeacherId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("CreatedByTeacher");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudentStudyClass", b =>
+                {
+                    b.HasOne("LMS_API.Models.Student", "Student")
+                        .WithMany("StudentStudyClasses")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS_API.Models.StudyClass", "StudyClass")
+                        .WithMany("StudentStudyClasses")
+                        .HasForeignKey("StudyClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("StudyClass");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudyClass", b =>
+                {
+                    b.HasOne("LMS_API.Models.Teacher", "Teacher")
+                        .WithMany("StudyClasses")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.Assignment", b =>
+                {
+                    b.Navigation("AssignmentAssignmentSets");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.AssignmentSet", b =>
+                {
+                    b.Navigation("AssignmentAssignmentSets");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.Student", b =>
+                {
+                    b.Navigation("StudentStudyClasses");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.StudyClass", b =>
+                {
+                    b.Navigation("StudentStudyClasses");
+                });
+
+            modelBuilder.Entity("LMS_API.Models.Teacher", b =>
+                {
+                    b.Navigation("AssignmentSets");
+
+                    b.Navigation("Assignments");
+
+                    b.Navigation("CreatedStudents");
+
+                    b.Navigation("StudyClasses");
                 });
 #pragma warning restore 612, 618
         }
