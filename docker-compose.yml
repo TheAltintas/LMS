@@ -1,0 +1,41 @@
+services:
+  # 1. Database Service
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql_server_db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Password123! # Change this!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql # Persistent volume for SQL data
+
+  # 2. Backend Service
+  api:
+    build: ./backend
+    # Name the image so it's ready to push to your Docker Hub repo
+    image: shoaibali808/my-csharp-api:latest 
+    container_name: csharp_api
+    ports:
+      - "8080:8080" # Map host port to container port
+    environment:
+      # Docker Networking Magic: Notice the server name is "db" (the service name above), NOT "localhost"
+      - ConnectionStrings__DefaultConnection=Server=db;Database=MyAppDb;User Id=sa;Password=YourStrong@Password123!;TrustServerCertificate=True;
+    depends_on:
+      - db
+
+  # 3. Frontend Service
+  web:
+    build: ./frontend
+    # Name the image for your Docker Hub repo
+    image: shoaibali808/my-vue-frontend:latest
+    container_name: vue_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+# Define the named volume so Docker knows to create it
+volumes:
+  sql_data:
