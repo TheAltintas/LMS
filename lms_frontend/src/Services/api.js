@@ -1,5 +1,5 @@
 export async function RegisterTeacher(firstName, lastName,email, password) {
-    const response = await fetch('http://localhost:5294/api/teacher', {
+    const response = await fetch('http://localhost:8080/api/teacher', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -16,7 +16,7 @@ export async function RegisterTeacher(firstName, lastName,email, password) {
 }
 
 export async function LoginTeacher(email, password) {
-    const response = await fetch('http://localhost:5294/api/teacher/login', {
+    const response = await fetch('http://localhost:8080/api/teacher/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ export async function LoginTeacher(email, password) {
 export async function CreateTask(data) {
   console.log("Sending payload:", data);
 
-  const response = await fetch('http://localhost:5294/api/assignment', {
+  const response = await fetch('http://localhost:8080/api/assignment', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
