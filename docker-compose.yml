@@ -5,7 +5,7 @@ services:
     container_name: sql_server_db
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Password123! # Change this!
+      - SA_PASSWORD=${SA_PASSWORD}
     ports:
       - "1433:1433"
     volumes:
@@ -13,15 +13,15 @@ services:
 
   # 2. Backend Service
   api:
-    build: ./backend
+    build: ./LMS_API
     # Name the image so it's ready to push to your Docker Hub repo
-    image: shoaibali808/my-csharp-api:latest 
-    container_name: csharp_api
+    image: shoaibali808/csharp-lms-webapi:latest 
+    container_name: csharp_webapi
     ports:
       - "8080:8080" # Map host port to container port
     environment:
       # Docker Networking Magic: Notice the server name is "db" (the service name above), NOT "localhost"
-      - ConnectionStrings__DefaultConnection=Server=db;Database=MyAppDb;User Id=sa;Password=YourStrong@Password123!;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=db;Database=LMS;User Id=sa;Password=ShoaibLovesHerMother-@Fkrs1234;TrustServerCertificate=True;
     depends_on:
       - db
 
