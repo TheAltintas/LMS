@@ -5,7 +5,7 @@ services:
     container_name: sql_server_db
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD}
+      - SA_PASSWORD=ShoaibLovesHerMother-@Fkrs1234
     ports:
       - "1433:1433"
     volumes:
@@ -21,6 +21,7 @@ services:
       - "8080:8080" # Map host port to container port
     environment:
       # Docker Networking Magic: Notice the server name is "db" (the service name above), NOT "localhost"
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=LMS;User Id=sa;Password=ShoaibLovesHerMother-@Fkrs1234;TrustServerCertificate=True;
     depends_on:
       - db

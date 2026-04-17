@@ -7,7 +7,7 @@ RUN dotnet restore "LMS_API.csproj"
 COPY . .
 RUN dotnet publish "LMS_API.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
