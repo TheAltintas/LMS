@@ -1,4 +1,4 @@
-using LMS_API.Controllers;
+﻿using LMS_API.Controllers;
 using LMS_API.Models;
 using LMS_API.Models.DTO.Auth;
 using LMS_API.Models.DTO.Student;
@@ -96,9 +96,7 @@ namespace LMS_API_UnitTest
             };
 
             SetAuthenticatedTeacher(42);
-            _studentServiceMock
-                .Setup(s => s.RegisterStudentAsync(dto, 42))
-                .ReturnsAsync(student);
+            _studentServiceMock.Setup(s => s.RegisterStudentAsync(dto, 42)).ReturnsAsync(student);
 
             // Act
             var result = await _controller.CreateStudent(dto);
