@@ -58,6 +58,16 @@ namespace LMS_API.Controllers
                 return CreatedAtAction(nameof(CreateStudent), new { id = student.Id }, studentReadDTO);
 
             }
+            catch (InvalidOperationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            {
+                var details = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while saving the student: {details}");
+            }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,

@@ -39,6 +39,9 @@
         <button @click="createFromCsv" :disabled="!csvFile">Upload CSV</button>
 
         <p v-if="csvResult" class="csv-result">{{ csvResult }}</p>
+        <ul v-if="csvErrors.length" class="csv-errors">
+          <li v-for="item in csvErrors" :key="item">{{ item }}</li>
+        </ul>
       </div>
     </section>
 
@@ -69,6 +72,7 @@ const manual = reactive({
 
 const csvFile = ref(null);
 const csvResult = ref('');
+const csvErrors = ref([]);
 const students = ref([]); // shows newly created students, gone if refresh
 const status = ref('');
 const statusType = ref('ok');
@@ -113,6 +117,7 @@ function onCsvSelected(event) {
 async function createFromCsv() {
   status.value = '';
   csvResult.value = '';
+  csvErrors.value = [];
 
   if (!csvFile.value) {
     status.value = 'Select a CSV file first.';
@@ -129,18 +134,51 @@ async function createFromCsv() {
   const created = [];
   let skipped = 0;
 
-  for (const row of rows) {
-    const [firstName, lastName, email, password] = row.split(',').map((x) => x?.trim());
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
+    const rowNumber = index + 1;
+    const parsed = parseCsvRow(row);
+    if (isHeaderRow(parsed)) {
+      continue;
+    }
+
+    const [firstName, lastName, email, password] = parsed.map((x) => x?.trim());
+
     if (!firstName || !lastName || !email || !password) {
       skipped += 1;
+      csvErrors.value.push(`Row ${rowNumber}: Missing one or more required fields.`);
       continue;
     }
 
     try {
       const student = await RegisterStudent(firstName, lastName, email, password);
       created.push(student);
-    } catch {
+    } catch (error) {
+      const message = (error?.message || '').toLowerCase();
+      const statusCode = error?.status;
+
+      if (statusCode === 401 || message.includes('unauthorized')) {
+        status.value = 'Your session has expired. Please log in again.';
+        statusType.value = 'error';
+        return;
+      }
+
+      if (message.includes('failed to fetch') || message.includes('networkerror')) {
+        status.value = 'Could not reach the API server. Start the backend and try again.';
+        statusType.value = 'error';
+        return;
+      }
+
       skipped += 1;
+      if (statusCode === 409 || message.includes('already exists')) {
+        csvErrors.value.push(`Row ${rowNumber}: Email already exists.`);
+      } else if (message.includes('password must be at least 6')) {
+        csvErrors.value.push(`Row ${rowNumber}: Password must be at least 6 characters.`);
+      } else if (message.includes('invalid email')) {
+        csvErrors.value.push(`Row ${rowNumber}: Invalid email format.`);
+      } else {
+        csvErrors.value.push(`Row ${rowNumber}: Could not create student (${error?.message || 'unknown error'}).`);
+      }
     }
   }
 
@@ -151,6 +189,54 @@ async function createFromCsv() {
   csvResult.value = `${created.length} created, ${skipped} skipped.`;
   status.value = 'CSV import completed.';
   statusType.value = 'ok';
+}
+
+function parseCsvRow(row) {
+  const normalized = row.replace(/^\uFEFF/, '');
+  const commaCount = (normalized.match(/,/g) || []).length;
+  const semicolonCount = (normalized.match(/;/g) || []).length;
+  const delimiter = semicolonCount > commaCount ? ';' : ',';
+
+  const values = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < normalized.length; i += 1) {
+    const ch = normalized[i];
+
+    if (ch === '"') {
+      if (inQuotes && normalized[i + 1] === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (ch === delimiter && !inQuotes) {
+      values.push(current);
+      current = '';
+      continue;
+    }
+
+    current += ch;
+  }
+
+  values.push(current);
+  return values;
+}
+
+function isHeaderRow(values) {
+  if (!Array.isArray(values) || values.length < 4) {
+    return false;
+  }
+
+  const normalized = values.slice(0, 4).map((v) => String(v || '').trim().toLowerCase());
+  return (normalized[0] === 'fornavn' || normalized[0] === 'firstname')
+    && (normalized[1] === 'efternavn' || normalized[1] === 'lastname')
+    && normalized[2] === 'email'
+    && (normalized[3] === 'kodeord' || normalized[3] === 'password');
 }
 </script>
 
@@ -249,6 +335,13 @@ button:disabled {
 .csv-result {
   color: #14532d;
   font-weight: 600;
+}
+
+.csv-errors {
+  margin: 0;
+  padding-left: 1rem;
+  color: #7f1d1d;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 900px) {
