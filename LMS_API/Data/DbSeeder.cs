@@ -1,4 +1,5 @@
 using LMS_API.Models;
+using LMS_API.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 
@@ -8,105 +9,93 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(ApplicationDbContext context)
     {
-        // If an existing database was created outside EF migrations, applying
-        // InitialCreate can fail because tables already exist.
-        var migrationEntries = await context.Database
-            .SqlQueryRaw<int>("SELECT CASE WHEN OBJECT_ID(N'__EFMigrationsHistory') IS NULL THEN 0 ELSE (SELECT COUNT(1) FROM [__EFMigrationsHistory]) END AS [Value]")
-            .SingleAsync();
+        await context.Database.EnsureCreatedAsync();
 
-        var knownTables = await context.Database
-            .SqlQueryRaw<int>("SELECT COUNT(1) AS [Value] FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME IN ('Assignments', 'Teacher', 'Students')")
-            .SingleAsync();
+        if (await context.Teacher.AnyAsync()) return;
 
-        var shouldSkipMigrate = migrationEntries == 0 && knownTables > 0;
+        var hasher = new BCryptPasswordHasher();
 
-        try
+        var teacher = new Teacher
         {
-            if (!shouldSkipMigrate)
-            {
-                await context.Database.MigrateAsync();
-            }
-            else
-            {
-                await EnsureAssignedAssignmentTablesAsync(context);
-            }
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("PendingModelChangesWarning"))
+            FirstName = "Morten",
+            LastName = "Domsgard",
+            Email = "morten.domsgard@ucl.dk",
+            Password = hasher.Hash("1234567890"),
+            CreatedDate = new DateTime(2026, 3, 13),
+            UpdatedDate = new DateTime(2026, 3, 13)
+        };
+        context.Teacher.Add(teacher);
+        await context.SaveChangesAsync();
+
+        var assignment = new Assignment
         {
-            // Do not drop data on startup. If DB does not exist yet, create it.
-            var canConnect = await context.Database.CanConnectAsync();
-            if (!canConnect)
-            {
-                await context.Database.EnsureCreatedAsync();
-            }
-        }
-        catch (SqlException ex) when (ex.Number == 2714)
+            Points = 10,
+            Type = "Delprøve 1",
+            ClassLevel = "A",
+            Subject = "Mathematics",
+            PictureUrl = "https://example.com/assignment1.png",
+            VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            TeacherId = teacher.Id,
+            CreatedDate = new DateTime(2026, 3, 25)
+        };
+        var assignmentSet = new AssignmentSet
         {
-            // Existing table/object detected during migration. Keep startup alive
-            // for already-provisioned development databases.
-        }
+            Name = "Math Set 1",
+            TeacherId = teacher.Id,
+            CreatedDate = new DateTime(2026, 3, 25)
+        };
+        context.Assignments.Add(assignment);
+        context.AssignmentSets.Add(assignmentSet);
+        await context.SaveChangesAsync();
 
-        // Seed one default teacher only if it does not already exist.
-        var teacherExists = await context.Teacher
-            .AsNoTracking()
-            .AnyAsync(t => t.Email.ToLower() == "teacher@school.com");
-
-        if (!teacherExists)
+        context.AssignmentAssignmentSets.Add(new AssignmentAssignmentSet
         {
-            var teacher = new Teacher
-            {
-                Email = "teacher@school.com",
-                Password = "password123",
-                FirstName = "John",
-                LastName = "Doe",
-                CreatedDate = DateTime.UtcNow,
-            };
+            AssignmentId = assignment.Id,
+            AssignmentSetId = assignmentSet.Id
+        });
 
-            context.Teacher.Add(teacher);
-            await context.SaveChangesAsync();
-        }
-    }
+        var shoaib = new Student
+        {
+            FirstName = "Shoaib",
+            LastName = "Ali",
+            Email = "shoaib.ali@student.ucl.dk",
+            Password = hasher.Hash("password123"),
+            CreatedByTeacherId = teacher.Id,
+            CreatedDate = new DateTime(2026, 4, 7),
+            UpdatedDate = new DateTime(2026, 4, 7)
+        };
+        var imran = new Student
+        {
+            FirstName = "Imran",
+            LastName = "Khan",
+            Email = "imran.khan@student.ucl.dk",
+            Password = hasher.Hash("password123"),
+            CreatedByTeacherId = teacher.Id,
+            CreatedDate = new DateTime(2026, 4, 7),
+            UpdatedDate = new DateTime(2026, 4, 7)
+        };
+        context.Students.AddRange(shoaib, imran);
 
-    private static async Task EnsureAssignedAssignmentTablesAsync(ApplicationDbContext context)
-    {
-        const string sql = @"
-IF OBJECT_ID(N'[AssignedAssignmentSets]', N'U') IS NULL
-BEGIN
-    CREATE TABLE [AssignedAssignmentSets] (
-        [Id] INT NOT NULL IDENTITY,
-        [DateOfAssigned] DATE NOT NULL,
-        [Deadline] DATE NOT NULL,
-        [TeacherId] INT NOT NULL,
-        [StudentId] INT NOT NULL,
-        CONSTRAINT [PK_AssignedAssignmentSets] PRIMARY KEY ([Id]),
-        CONSTRAINT [FK_AssignedAssignmentSets_Teacher_TeacherId] FOREIGN KEY ([TeacherId]) REFERENCES [Teacher]([Id]),
-        CONSTRAINT [FK_AssignedAssignmentSets_Students_StudentId] FOREIGN KEY ([StudentId]) REFERENCES [Students]([Id])
-    );
+        var classA = new StudyClass
+        {
+            Name = "Class A",
+            TeacherId = teacher.Id,
+            CreatedDate = new DateTime(2026, 4, 10)
+        };
+        var classB = new StudyClass
+        {
+            Name = "Class B",
+            TeacherId = teacher.Id,
+            CreatedDate = new DateTime(2026, 4, 10)
+        };
+        context.StudyClasses.AddRange(classA, classB);
+        await context.SaveChangesAsync();
 
-    CREATE INDEX [IX_AssignedAssignmentSets_TeacherId] ON [AssignedAssignmentSets]([TeacherId]);
-    CREATE INDEX [IX_AssignedAssignmentSets_StudentId] ON [AssignedAssignmentSets]([StudentId]);
-END;
-
-IF OBJECT_ID(N'[AssignedAssignments]', N'U') IS NULL
-BEGIN
-    CREATE TABLE [AssignedAssignments] (
-        [Id] INT NOT NULL IDENTITY,
-        [AssignedAssignmentSetId] INT NOT NULL,
-        [AssignmentId] INT NOT NULL,
-        [StudentResultFileName] NVARCHAR(MAX) NULL,
-        [StudentResultContentType] NVARCHAR(MAX) NULL,
-        [SubmittedAtUtc] DATETIME2 NULL,
-        [Feedback] NVARCHAR(MAX) NULL,
-        [StudentResultPath] NVARCHAR(MAX) NULL,
-        CONSTRAINT [PK_AssignedAssignments] PRIMARY KEY ([Id]),
-        CONSTRAINT [FK_AssignedAssignments_AssignedAssignmentSets_AssignedAssignmentSetId] FOREIGN KEY ([AssignedAssignmentSetId]) REFERENCES [AssignedAssignmentSets]([Id]) ON DELETE CASCADE,
-        CONSTRAINT [FK_AssignedAssignments_Assignments_AssignmentId] FOREIGN KEY ([AssignmentId]) REFERENCES [Assignments]([Id])
-    );
-
-    CREATE INDEX [IX_AssignedAssignments_AssignedAssignmentSetId] ON [AssignedAssignments]([AssignedAssignmentSetId]);
-    CREATE INDEX [IX_AssignedAssignments_AssignmentId] ON [AssignedAssignments]([AssignmentId]);
-END;";
-
-        await context.Database.ExecuteSqlRawAsync(sql);
+        context.StudentStudyClasses.AddRange(
+            new StudentStudyClass { StudentId = shoaib.Id, StudyClassId = classA.Id },
+            new StudentStudyClass { StudentId = shoaib.Id, StudyClassId = classB.Id },
+            new StudentStudyClass { StudentId = imran.Id,  StudyClassId = classA.Id }
+        );
+        await context.SaveChangesAsync();
     }
 }
