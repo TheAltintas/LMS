@@ -21,32 +21,41 @@ namespace LMS_API.Services
         }
         public async Task<Student> RegisterStudentAsync(StudentCreateDTO studentDTO, int teacherId)
         {
-            try
+            if (studentDTO == null)
             {
-                if (studentDTO == null)
-                {
-                    _logger.LogWarning("StudentCreateDTO is null");
-                    return null;
-                }
-                var duplicateEmail = await _db.Students.AsNoTracking().AnyAsync(u => u.Email.ToLower() == studentDTO.Email.ToLower());
-                if (duplicateEmail)
-                {
-                    _logger.LogWarning($"Email {studentDTO.Email} already exists");
-                    return null;
-                }
-                Student student = _mapper.Map<Student>(studentDTO);
-                student.CreatedDate = DateTime.Now;
-                student.CreatedByTeacherId = teacherId;
-                await _db.Students.AddAsync(student);
-                await _db.SaveChangesAsync();
-                _logger.LogInformation($"Student {student.Email} registered successfully");
-                return student;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error registering student: {ex.Message}");
+                _logger.LogWarning("StudentCreateDTO is null");
                 return null;
             }
+
+            var normalizedEmail = studentDTO.Email.Trim().ToLowerInvariant();
+            var duplicateEmail = await _db.Students
+                .AsNoTracking()
+                .AnyAsync(u => u.Email.ToLower() == normalizedEmail);
+
+            if (duplicateEmail)
+            {
+                _logger.LogWarning("Email {Email} already exists", studentDTO.Email);
+                return null;
+            }
+
+            var teacherExists = await _db.Teacher
+                .AsNoTracking()
+                .AnyAsync(t => t.Id == teacherId);
+            if (!teacherExists)
+            {
+                throw new InvalidOperationException("Teacher account for current session was not found. Please log in again.");
+            }
+
+            Student student = _mapper.Map<Student>(studentDTO);
+            student.CreatedDate = DateTime.Now;
+            student.CreatedByTeacherId = teacherId;
+            student.Email = studentDTO.Email.Trim();
+
+            await _db.Students.AddAsync(student);
+            await _db.SaveChangesAsync();
+
+            _logger.LogInformation("Student {Email} registered successfully", student.Email);
+            return student;
         }
 
         public async Task<IEnumerable<StudentReadDTO>> GetStudentsCreatedByTeacherAsync(int teacherId)
