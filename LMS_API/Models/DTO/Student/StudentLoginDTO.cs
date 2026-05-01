@@ -2,6 +2,7 @@
 
 namespace LMS_API.Models.DTO.Student
 {
+    // object for logging in as a student, containing only the email and password
     public class StudentLoginDTO
     {
         [Required]

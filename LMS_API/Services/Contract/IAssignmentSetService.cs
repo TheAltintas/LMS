@@ -1,13 +1,13 @@
 ﻿using LMS_API.Models;
 using LMS_API.Models.DTO.Assignment;
-using LMS_API.Models.DTO.Assignmentset;
+using LMS_API.Models.DTO.AssignmentSet;
 
 namespace LMS_API.Services.Contract
 {
     public interface IAssignmentSetService
     {
-        Task<AssignmentSet> CreateAssignmentSetAsync(AssignmentSetCreateDTO assignmentSetDTO);
-        Task<IEnumerable<AssignmentSetReadDTO>> GetAllAssignmentSetsByTeacherAsync(int TeacherId);
-        Task<bool> AddAssignmentToSetAsync(int assignmentSetId, int assignmentId);
+        Task<AssignmentSetReadDTO?> CreateAssignmentSetAsync(AssignmentSetCreateDTO assignmentSetDTO, int teacherId);
+        Task<IEnumerable<AssignmentSetReadDTO>> GetAllAssignmentSetsByTeacherAsync(int teacherId);
+        Task<bool> AddAssignmentToSetAsync(int assignmentSetId, int assignmentId, int teacherId);
     }
 }

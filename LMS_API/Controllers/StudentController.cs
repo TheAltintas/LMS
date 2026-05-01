@@ -1,7 +1,8 @@
 ﻿using LMS_API.Models;
+using LMS_API.Models.DTO.Auth;
 using LMS_API.Models.DTO.Student;
-using LMS_API.Services;
 using LMS_API.Services.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS_API.Controllers
@@ -11,12 +12,17 @@ namespace LMS_API.Controllers
     public class StudentController:ControllerBase
     {
         private readonly IStudentService _studentService;
-        public StudentController(IStudentService studentService)
+        private readonly ITokenService _tokenService;
+
+        public StudentController(IStudentService studentService, ITokenService tokenService)
         {
             _studentService = studentService;
+            _tokenService = tokenService;
         }
+
+        [Authorize(Roles = "Teacher")]
         [HttpPost]
-        public async Task<ActionResult<Student>> CreateStudent(StudentCreateDTO studentDTO)
+        public async Task<ActionResult<StudentReadDTO>> CreateStudent(StudentCreateDTO studentDTO)
         {
             try
             {
@@ -24,13 +30,43 @@ namespace LMS_API.Controllers
                 {
                     return BadRequest("Student data is required");
                 }
-                var student = await _studentService.RegisterStudentAsync(studentDTO);
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                {
+                    return Unauthorized("Missing or invalid teacher identity.");
+                }
+
+                var student = await _studentService.RegisterStudentAsync(studentDTO, teacherId);
                 if (student == null)
                 {
                     return Conflict($"'{studentDTO.Email}' already exists.");
                 }
-                return CreatedAtAction(nameof(CreateStudent), new { id = student.Id }, student);// instead of Ok
 
+                var studentReadDTO = new StudentReadDTO
+                {
+                    Id = student.Id,
+                    FirstName = student.FirstName,
+                    LastName = student.LastName,
+                    Email = student.Email
+                };
+
+                return CreatedAtAction(nameof(CreateStudent), new { id = student.Id }, studentReadDTO);
+
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            {
+                var details = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while saving the student: {details}");
             }
             catch (Exception ex)
             {
@@ -39,13 +75,39 @@ namespace LMS_API.Controllers
             }
         }
 
+        [Authorize(Roles = "Teacher")]
+        [HttpGet("teacher")]
+        public async Task<ActionResult<IEnumerable<StudentReadDTO>>> GetStudentsCreatedByTeacher()
+        {
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+            {
+                return Unauthorized("Missing or invalid teacher identity.");
+            }
+
+            var students = await _studentService.GetStudentsCreatedByTeacherAsync(teacherId);
+            return Ok(students);
+        }
+
         [HttpPost("login")]
-        public async Task<ActionResult<bool>> LoginStudent(StudentLoginDTO studentLoginDTO)
+        [AllowAnonymous]
+        public async Task<ActionResult<AuthResponseDTO>> LoginStudent(StudentLoginDTO studentLoginDTO)
         {
             try
             {
-                var isSuccess = await _studentService.LoginAsync(studentLoginDTO);
-                return Ok(isSuccess);
+                var student = await _studentService.AuthenticateAsync(studentLoginDTO);
+                if (student == null)
+                {
+                    return Unauthorized("Invalid email or password.");
+                }
+
+                var token = _tokenService.GenerateToken(student.Id, student.Email, "Student");
+                return Ok(new AuthResponseDTO
+                {
+                    Token = token,
+                    Role = "Student",
+                    Email = student.Email,
+                    ExpiresAtUtc = _tokenService.GetTokenExpiryUtc()
+                });
             }
             catch (Exception ex)
             {

@@ -20,8 +20,5 @@ namespace LMS_API.Models.DTO.Teacher
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
         public required string Password { get; set; }
 
-        public DateTime? CreatedDate { get; set; } // optional. it can be nullable
-        public DateTime? UpdatedDate { get; set; } // optional. it can be nullable
-
     }
 }

@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using LMS_API.Data;
 using LMS_API.Models;
-using LMS_API.Models.DTO.Assignmentset;
-using LMS_API.Models.DTO.Assignment;
+using LMS_API.Models.DTO.AssignmentSet;
 using LMS_API.Services.Contract;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,18 +18,24 @@ namespace LMS_API.Services
             _mapper = mapper;
         }
 
-        public async Task<AssignmentSet> CreateAssignmentSetAsync(AssignmentSetCreateDTO assignmentSetDTO)
+        public async Task<AssignmentSetReadDTO?> CreateAssignmentSetAsync(AssignmentSetCreateDTO assignmentSetDTO, int teacherId)
         {
             try
             {
                 if (assignmentSetDTO == null) return null;
 
                 AssignmentSet assignmentSet = _mapper.Map<AssignmentSet>(assignmentSetDTO);
+                assignmentSet.TeacherId = teacherId;
                 assignmentSet.CreatedDate = DateTime.Now;
 
                 await _db.AssignmentSets.AddAsync(assignmentSet);
                 await _db.SaveChangesAsync();
-                return assignmentSet;
+                var setWithAssignments = await _db.AssignmentSets
+                    .Include(x => x.AssignmentAssignmentSets)
+                        .ThenInclude(link => link.Assignment)
+                    .FirstOrDefaultAsync(x => x.Id == assignmentSet.Id);
+
+                return _mapper.Map<AssignmentSetReadDTO>(setWithAssignments ?? assignmentSet);
             }
             catch (Exception)
             {
@@ -54,35 +59,33 @@ namespace LMS_API.Services
             {
                 return Enumerable.Empty<AssignmentSetReadDTO>();
             }
-}
-        public async Task<bool> AddAssignmentToSetAsync(int assignmentSetId, int assignmentId)
+        }       
+        public async Task<bool> AddAssignmentToSetAsync(int assignmentSetId, int assignmentId, int teacherId)
         {
             try
             {
                 var assignmentSet = await _db.AssignmentSets
-                    .Include(x => x.AssignmentAssignmentSets)
-                    .FirstOrDefaultAsync(x => x.Id == assignmentSetId);
+                    .FirstOrDefaultAsync(x => x.Id == assignmentSetId && x.TeacherId == teacherId);
+                if (assignmentSet == null) return false;
 
-                var assignment = await _db.Assignments.FindAsync(assignmentId);
+                var assignment = await _db.Assignments
+                    .FirstOrDefaultAsync(x => x.Id == assignmentId && x.TeacherId == teacherId);
+                if (assignment == null) return false;
 
-                if (assignmentSet == null || assignment == null)
-                    return false;
+                var alreadyLinked = await _db.AssignmentAssignmentSets
+                    .AnyAsync(x => x.AssignmentSetId == assignmentSetId && x.AssignmentId == assignmentId);
+                if (alreadyLinked) return true;
 
-                // Prevent duplicates
-                if (!assignmentSet.AssignmentAssignmentSets.Any(x => x.AssignmentId == assignmentId))
+                await _db.AssignmentAssignmentSets.AddAsync(new AssignmentAssignmentSet
                 {
-                    assignmentSet.AssignmentAssignmentSets.Add(new AssignmentAssignmentSet
-                    {
-                        AssignmentSetId = assignmentSetId,
-                        AssignmentId = assignmentId
-                    });
+                    AssignmentSetId = assignmentSetId,
+                    AssignmentId = assignmentId
+                });
 
-                    await _db.SaveChangesAsync();
-                }
-
+                await _db.SaveChangesAsync();
                 return true;
             }
-            catch
+            catch (Exception)
             {
                 return false;
             }

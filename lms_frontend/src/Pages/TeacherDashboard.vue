@@ -8,49 +8,52 @@
       </div>
     </div>
 
-    <div class="dashboard-grid">
-      <div class="stat-card">
-        <div class="stat-icon courses-icon">📚</div>
-        <div class="stat-content">
-          <h3>Kurser</h3>
-          <p class="stat-number">0</p>
-          <p class="stat-label">Aktive kurser</p>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon students-icon">👨‍🎓</div>
-        <div class="stat-content">
-          <h3>Elever</h3>
-          <p class="stat-number">0</p>
-          <p class="stat-label">Tilmeldte elever</p>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon assignments-icon">📝</div>
-        <div class="stat-content">
-          <h3>Opgaver</h3>
-          <p class="stat-number">0</p>
-          <p class="stat-label">Afventende rettelser</p>
-        </div>
-      </div>
-    </div>
+    <p v-if="errorMessage" class="status error">{{ errorMessage }}</p>
 
     <div class="dashboard-content">
       <div class="content-card">
-        <h2>Seneste aktivitet</h2>
-        <div class="empty-state">
-          <p>Ingen seneste aktivitet</p>
-          <p class="muted">Dine seneste handlinger vil vises her</p>
-        </div>
+        <h2>Dine klasser ({{ studyClasses.length }})</h2>
+        <p v-if="loading" class="muted">Henter klasser...</p>
+        <p v-else-if="studyClasses.length === 0" class="muted">Du har ingen klasser endnu.</p>
+        <ul v-else class="overview-list">
+          <li v-for="studyClass in studyClasses" :key="studyClass.id">
+            <router-link :to="`/studyclass/${studyClass.id}`" class="item-link">
+              {{ studyClass.name }}
+            </router-link>
+            <span class="item-meta">{{ studyClass.students?.length || 0 }} elever</span>
+          </li>
+        </ul>
       </div>
 
       <div class="content-card">
+        <h2>Dine elever ({{ students.length }})</h2>
+        <p v-if="loading" class="muted">Henter elever...</p>
+        <p v-else-if="students.length === 0" class="muted">Du har ingen elever endnu.</p>
+        <ul v-else class="overview-list">
+          <li v-for="student in students" :key="student.id">
+            <span>{{ student.firstName }} {{ student.lastName }}</span>
+            <span class="item-meta">{{ student.email }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="content-card full-width">
         <h2>Hurtige handlinger</h2>
         <div class="quick-actions">
+          <router-link to="/create-studyclass" class="action-btn">
+            <span>🏫</span> Opret klasse
+          </router-link>
+          <router-link to="/register-student" class="action-btn">
+            <span>👨‍🎓</span> Opret elev
+          </router-link>
           <router-link to="/create-task" class="action-btn">
             <span>📝</span> Opret opgave
+          </router-link>
+          <router-link to="/create-taskset" class="action-btn">
+            <span>📚</span> Opret opgavesæt
+          </router-link>
+          <router-link to="/assigned-submissions" class="action-btn">
+            <span>✅</span> Tildel og bedøm afleveringer
           </router-link>
         </div>
       </div>
@@ -59,6 +62,38 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue';
+import { GetTeacherStudents, GetTeacherStudyClasses } from '../Services/api';
+
+const loading = ref(false);
+const errorMessage = ref('');
+const studyClasses = ref([]);
+const students = ref([]);
+
+async function loadOverview() {
+  loading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const [classData, studentData] = await Promise.all([
+      GetTeacherStudyClasses(),
+      GetTeacherStudents()
+    ]);
+
+    studyClasses.value = Array.isArray(classData) ? classData : [];
+    students.value = Array.isArray(studentData) ? studentData : [];
+  } catch (error) {
+    errorMessage.value = error?.message || 'Kunne ikke hente dashboard data.';
+    studyClasses.value = [];
+    students.value = [];
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(async () => {
+  await loadOverview();
+});
 </script>
 
 <style scoped>
@@ -104,79 +139,16 @@
   margin: 0;
 }
 
-.dashboard-grid {
-  max-width: 1200px;
-  margin: 0 auto 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.stat-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
-}
-
-.stat-icon {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  font-size: 1.5rem;
-}
-
-.courses-icon {
-  background: rgba(99, 102, 241, 0.1);
-}
-
-.students-icon {
-  background: rgba(34, 211, 238, 0.1);
-}
-
-.assignments-icon {
-  background: rgba(251, 191, 36, 0.1);
-}
-
-.stat-content h3 {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.stat-number {
-  margin: 0.25rem 0;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.stat-label {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #94a3b8;
-}
-
 .dashboard-content {
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
+}
+
+.full-width {
+  grid-column: 1 / -1;
 }
 
 .content-card {
@@ -193,22 +165,55 @@
   color: #0f172a;
 }
 
-.empty-state {
-  padding: 2rem;
-  text-align: center;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px dashed rgba(15, 23, 42, 0.12);
-}
-
-.empty-state p {
-  margin: 0.25rem 0;
-  color: #475569;
-}
-
 .muted {
   color: #94a3b8 !important;
   font-size: 0.9rem;
+}
+
+.status {
+  max-width: 1200px;
+  margin: 0 auto 1rem;
+  border-radius: 8px;
+  padding: 0.65rem;
+}
+
+.status.error {
+  background: #fee8e8;
+  color: #7f1d1d;
+}
+
+.overview-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.overview-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+}
+
+.item-link {
+  color: #0f172a;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.item-link:hover {
+  color: #0f766e;
+}
+
+.item-meta {
+  color: #64748b;
+  font-size: 0.88rem;
 }
 
 .quick-actions {

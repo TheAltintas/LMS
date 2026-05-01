@@ -1,23 +1,28 @@
 ﻿using LMS_API.Models;
 using LMS_API.Models.DTO.Assignment;
 using LMS_API.Services.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS_API.Controllers
 {
     [Route("api/assignment")]
     [ApiController]
+    [Authorize(Roles = "Teacher")]
     public class AssignmentController:ControllerBase
     {
         private readonly IAssignmentService _assignmentService;
-        public AssignmentController(IAssignmentService assignmentService) 
+        private readonly ITokenService _tokenService;
+
+        public AssignmentController(IAssignmentService assignmentService, ITokenService tokenService) 
         {
             _assignmentService = assignmentService;
+            _tokenService = tokenService;
         }
         
 
         [HttpPost]
-        public async Task<ActionResult<Assignment>> CreateAssignment(AssignmentCreateDTO assignmentDTO)
+        public async Task<ActionResult<AssignmentReadDTO>> CreateAssignment([FromForm] AssignmentCreateDTO assignmentDTO)
         {
             try
             {
@@ -25,10 +30,15 @@ namespace LMS_API.Controllers
                 {
                     return BadRequest("Assignment data is required");
                 }
-                var assignment = await _assignmentService.CreateAssignmentAsync(assignmentDTO);
+                if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                {
+                    return Unauthorized("Missing or invalid teacher identity.");
+                }
+
+                var assignment = await _assignmentService.CreateAssignmentAsync(assignmentDTO, teacherId);
                 if (assignment == null)
                 {
-                    return BadRequest("Could not create assignment.");
+                    return BadRequest("Could not create assignment. Check that the image is a valid type (jpg, png, gif, webp) and under 10 MB.");
                 }
                 return CreatedAtAction(nameof(CreateAssignment), new { id = assignment.Id }, assignment);// instead of Ok
             }
@@ -39,13 +49,17 @@ namespace LMS_API.Controllers
             }
         }
 
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Assignment>>> GetAllAssignments()
+        [HttpGet("teacher")]
+        public async Task<ActionResult<IEnumerable<AssignmentReadDTO>>> GetAllAssignments()
         {
             try
             {
-                var assignments = await _assignmentService.GetAllAssignmentsAsync();
+                if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+                {
+                    return Unauthorized("Missing or invalid teacher identity.");
+                }
+
+                var assignments = await _assignmentService.GetAllAssignmentsAsync(teacherId);
                 return Ok(assignments);
             }
             catch(Exception ex)
@@ -57,7 +71,12 @@ namespace LMS_API.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteAssignment(int id)
         {
-            var deleted = await _assignmentService.DeleteAssignmentAsync(id);
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+            {
+                return Unauthorized("Missing or invalid teacher identity.");
+            }
+
+            var deleted = await _assignmentService.DeleteAssignmentAsync(id, teacherId);
 
             if (!deleted) 
             {

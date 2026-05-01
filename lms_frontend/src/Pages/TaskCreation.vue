@@ -2,7 +2,6 @@
   <div class="page-shell">
     <div class="task-form-container">
       <div class="form-header">
-        <p class="badge">Task Management</p>
         <h1>Opret ny opgave</h1>
         <p class="subtitle">
           Udfyld detaljerne nedenfor for at oprette en ny opgave til dine elever
@@ -69,14 +68,28 @@
             <h2>Opgave indhold</h2>
 
             <label class="field">
-              <span>Billede URL</span>
-              <input
-                v-model="form.PictureUrl"
-                type="url"
-                placeholder="https://example.com/picture"
-                :class="{ invalid: errors.PictureUrl }"
-              />
-              <small v-if="errors.PictureUrl">{{ errors.PictureUrl }}</small>
+              <span>Opgavebillede <span class="optional">(jpg, png, gif, webp — maks 10 MB)</span></span>
+              <div
+                class="file-drop"
+                :class="{ invalid: errors.pictureFile, 'has-file': form.pictureFile }"
+                @dragover.prevent
+                @drop.prevent="onFileDrop"
+              >
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.gif,.webp"
+                  class="file-input"
+                  @change="onFileChange"
+                />
+                <div v-if="imagePreview" class="preview-wrapper">
+                  <img :src="imagePreview" class="image-preview" alt="Preview" />
+                  <button type="button" class="remove-file" @click.prevent="removeFile">✕</button>
+                </div>
+                <div v-else class="drop-hint">
+                  <span>Træk et billede hertil eller klik for at vælge</span>
+                </div>
+              </div>
+              <small v-if="errors.pictureFile">{{ errors.pictureFile }}</small>
             </label>
 
             <label class="field">
@@ -88,6 +101,17 @@
                 :class="{ invalid: errors.relatedVideo }"
               />
               <small v-if="errors.relatedVideo">{{ errors.relatedVideo }}</small>
+            </label>
+
+            <label class="field">
+              <span>Resultat <span class="optional">(valgfri)</span></span>
+              <textarea
+                v-model="form.result"
+                placeholder="Beskriv det forventede resultat..."
+                rows="4"
+                :class="{ invalid: errors.result }"
+              />
+              <small v-if="errors.result">{{ errors.result }}</small>
             </label>
           </div>
         </div>
@@ -110,17 +134,19 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { CreateTask } from '../Services/api';
+import { CreateAssignment } from '../Services/api';
 
 const form = reactive({
   subject: '',
   niveau: '',
   delprove: '',
   point: null,
-  PictureUrl: '',
-  relatedVideo: ''
+  pictureFile: null,
+  relatedVideo: '',
+  result: ''
 });
 
+const imagePreview = ref(null);
 const errors = ref({});
 const loading = ref(false);
 
@@ -137,6 +163,27 @@ function showToast(message, type = 'success') {
   setTimeout(() => (toast.show = false), 3000);
 }
 
+function onFileChange(event) {
+  const file = event.target.files[0];
+  setFile(file);
+}
+
+function onFileDrop(event) {
+  const file = event.dataTransfer.files[0];
+  setFile(file);
+}
+
+function setFile(file) {
+  if (!file) return;
+  form.pictureFile = file;
+  imagePreview.value = URL.createObjectURL(file);
+}
+
+function removeFile() {
+  form.pictureFile = null;
+  imagePreview.value = null;
+}
+
 function validate() {
   const nextErrors = {};
 
@@ -144,13 +191,13 @@ function validate() {
   if (!form.niveau) nextErrors.niveau = 'Please select a niveau';
   if (!form.delprove) nextErrors.delprove = 'Please select a delprøve';
 
-  if (!form.point) {
+  if (form.point === null || form.point === '') {
     nextErrors.point = 'Please enter points';
-  } else if (form.point < 1 || form.point > 100) {
-    nextErrors.point = 'Points must be between 1 and 100';
+  } else if (form.point < 0 || form.point > 10) {
+    nextErrors.point = 'Points must be between 0 and 10';
   }
 
-  if (!form.PictureUrl) nextErrors.PictureUrl = 'Picture URL is required';
+  if (!form.pictureFile) nextErrors.pictureFile = 'An image is required';
 
   if (form.relatedVideo && !isValidUrl(form.relatedVideo)) {
     nextErrors.relatedVideo = 'Please enter a valid URL';
@@ -174,8 +221,10 @@ function resetForm() {
   form.niveau = '';
   form.delprove = '';
   form.point = null;
-  form.PictureUrl = '';
+  form.pictureFile = null;
   form.relatedVideo = '';
+  form.result = '';
+  imagePreview.value = null;
   errors.value = {};
 }
 
@@ -185,20 +234,21 @@ async function handleSubmit() {
   loading.value = true;
 
   try {
-    await CreateTask({
+    await CreateAssignment({
       Points: Number(form.point),
       Type: form.delprove,
       ClassLevel: form.niveau,
       Subject: form.subject,
-      PictureUrl: form.PictureUrl || null,
-      VideoUrl: form.relatedVideo || null
+      PictureFile: form.pictureFile,
+      VideoUrl: form.relatedVideo || null,
+      Result: form.result || null
     });
 
-    showToast('Task created successfully!', 'success');
+    showToast('Opgave oprettet!', 'success');
     resetForm();
   } catch (error) {
     console.error('Failed to create task:', error);
-    showToast('Failed to create task.', 'error');
+    showToast('Kunne ikke oprette opgave.', 'error');
   } finally {
     loading.value = false;
   }
@@ -226,21 +276,6 @@ async function handleSubmit() {
 .form-header {
   text-align: center;
   margin-bottom: 2rem;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  border-radius: 999px;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #6366f1;
-  margin-bottom: 0.5rem;
 }
 
 .form-header h1 {
@@ -297,14 +332,104 @@ async function handleSubmit() {
   color: #334155;
 }
 
-.required {
-  color: #ef4444;
-}
-
 .optional {
   color: #94a3b8;
   font-weight: 400;
   font-size: 0.85rem;
+}
+
+textarea {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: #0f172a;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.file-drop {
+  position: relative;
+  border: 2px dashed #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  min-height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.file-drop:hover {
+  border-color: #6366f1;
+}
+
+.file-drop.invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.file-drop.has-file {
+  border-style: solid;
+  border-color: #6366f1;
+}
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.drop-hint {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+.preview-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.image-preview {
+  max-height: 140px;
+  max-width: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.remove-file {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
 }
 
 select,
@@ -319,17 +444,6 @@ input[type="text"] {
   color: #0f172a;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-textarea {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
-  font-size: 0.95rem;
-  color: #0f172a;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  width: 100%;
-}
-
 select {
   cursor: pointer;
   appearance: none;
@@ -339,14 +453,9 @@ select {
   padding-right: 2.5rem;
 }
 
-textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
 select:focus,
 input:focus,
-textarea:focus {
+input:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
@@ -360,16 +469,6 @@ textarea:focus {
 small {
   color: #ef4444;
   font-size: 0.8rem;
-}
-
-.char-count {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  text-align: right;
-}
-
-.char-count.warning {
-  color: #f59e0b;
 }
 
 .form-actions {

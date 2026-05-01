@@ -4,18 +4,22 @@
       <li class="brand">
         <router-link to="/">LMS Portal</router-link>
       </li>
-      <template v-if="loggedIn">
+      <template v-if="loggedIn && isTeacher">
         <li><router-link to="/teacher-dashboard">Dashboard</router-link></li>
         <li><router-link to="/create-task">Opret Opgave</router-link></li>
+        <li><router-link to="/create-taskset">Opret Opgavesæt</router-link></li>  
+        <li><router-link to="/assigned-submissions">Tildel & Bedøm</router-link></li>
+        <li><router-link to="/create-studyclass">Opret klasse</router-link></li>
+        <li><router-link to="/register-student">Opret elev(er)</router-link></li>  
       </template>
     </ul>
 
     <ul class="nav-right">
       <template v-if="loggedIn">
-        <li><a href="#" @click.prevent="logout">Logud</a></li>
+        <li><a href="#" @click.prevent="logout">Log ud</a></li>
       </template>
       <template v-else>
-        <li><router-link to="/login">Login</router-link></li>
+        <li><router-link to="/login">Log ind</router-link></li>
         <li><router-link to="/register">Opret konto</router-link></li>
       </template>
     </ul>
@@ -25,13 +29,17 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { clearAuthSession, getAuthSession } from '../Services/api';
 
 const router = useRouter();
 const route = useRoute();
 const loggedIn = ref(false);
+const isTeacher = ref(false);
 
 function checkLoginStatus() {
-  loggedIn.value = !!localStorage.getItem('user');
+  const auth = getAuthSession();
+  loggedIn.value = !!(auth?.token || auth?.Token);
+  isTeacher.value = (auth?.role || auth?.Role || '').toLowerCase() === 'teacher';
 }
 
 onMounted(() => {
@@ -44,8 +52,9 @@ watch(() => route.path, () => {
 });
 
 function logout() {
-  localStorage.removeItem('user');
+  clearAuthSession();
   loggedIn.value = false;
+  isTeacher.value = false;
   router.replace('/');
 }
 </script>

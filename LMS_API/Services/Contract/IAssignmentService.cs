@@ -5,8 +5,8 @@ namespace LMS_API.Services.Contract
 {
     public interface IAssignmentService
     {
-        Task<Assignment> CreateAssignmentAsync(AssignmentCreateDTO assignmentDTO);
-        Task<IEnumerable<Assignment>> GetAllAssignmentsAsync();
-        Task<bool> DeleteAssignmentAsync(int id);
+        Task<AssignmentReadDTO?> CreateAssignmentAsync(AssignmentCreateDTO assignmentDTO, int teacherId);
+        Task<IEnumerable<AssignmentReadDTO>> GetAllAssignmentsAsync(int teacherId);
+        Task<bool> DeleteAssignmentAsync(int id, int teacherId);
     }
 }

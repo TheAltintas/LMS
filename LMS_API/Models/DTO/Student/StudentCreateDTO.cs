@@ -2,6 +2,7 @@
 
 namespace LMS_API.Models.DTO.Student
 {
+    // object for when a teacher register a student, containing all necessary info including password
     public class StudentCreateDTO
     {
         [Required(ErrorMessage = "First name is required")]
@@ -19,8 +20,5 @@ namespace LMS_API.Models.DTO.Student
         [Required]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
         public required string Password { get; set; }
-
-        public DateTime? CreatedDate { get; set; } // optional. it can be nullable
-        public DateTime? UpdatedDate { get; set; } // optional. it can be nullable
     }
 }
