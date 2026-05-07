@@ -120,6 +120,54 @@ rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds
 100 - ((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100)
 ```
 
+## Grafana Alerts
+
+Create them under **A graph card → More → New alert rule**. All alerts go in folder `LMS`, group `LMS`, evaluation interval `1m`, keep firing `none`.
+
+### Avg Response Time
+**Query:**
+```promql
+rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])
+```
+**Condition:** IS ABOVE `0.5` (500ms)
+**Summary:** `High average response time on LMS API`
+**Description:** `Average response time has exceeded 500ms for more than 5 minutes.`
+
+---
+
+### HTTP Error Rate
+**Query:**
+```promql
+sum(rate(http_requests_received_total{code=~"4..|5.."}[5m])) / sum(rate(http_requests_received_total[5m])) * 100
+```
+**Condition:** IS ABOVE `5` (5%)
+**Summary:** `High HTTP error rate on LMS API`
+**Description:** `HTTP error rate (4xx/5xx) has exceeded 5% for more than 5 minutes.`
+
+---
+
+### CPU Usage
+**Query:**
+```promql
+100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+```
+**Condition:** IS ABOVE `80` (80%)
+**Summary:** `High CPU usage on LMS host`
+**Description:** `CPU usage has exceeded 80% for more than 5 minutes.`
+
+---
+
+### Memory Usage
+**Query:**
+```promql
+100 - ((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100)
+```
+**Condition:** IS ABOVE `85` (85%)
+**Summary:** `High memory usage on LMS host`
+**Description:** `Memory usage has exceeded 85% for more than 5 minutes.`
+
+---
+
 ## Verify Prometheus is scraping
 
 Open http://localhost:9090/targets — all three jobs should show **UP**:
