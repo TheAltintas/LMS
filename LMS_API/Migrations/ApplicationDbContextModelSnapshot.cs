@@ -109,8 +109,12 @@ namespace LMS_API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<decimal>("Points")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Result")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("Subject")
                         .IsRequired()
@@ -137,20 +141,6 @@ namespace LMS_API.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Assignments");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ClassLevel = "A",
-                            CreatedDate = new DateTime(2026, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PictureUrl = "https://example.com/assignment1.png",
-                            Points = 10m,
-                            Subject = "Mathematics",
-                            TeacherId = 1,
-                            Type = "Delprøve 1",
-                            VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                        });
                 });
 
             modelBuilder.Entity("LMS_API.Models.AssignmentAssignmentSet", b =>
@@ -166,13 +156,6 @@ namespace LMS_API.Migrations
                     b.HasIndex("AssignmentSetId");
 
                     b.ToTable("AssignmentAssignmentSets");
-
-                    b.HasData(
-                        new
-                        {
-                            AssignmentId = 1,
-                            AssignmentSetId = 1
-                        });
                 });
 
             modelBuilder.Entity("LMS_API.Models.AssignmentSet", b =>
@@ -202,15 +185,6 @@ namespace LMS_API.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("AssignmentSets");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2026, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Math Set 1",
-                            TeacherId = 1
-                        });
                 });
 
             modelBuilder.Entity("LMS_API.Models.Student", b =>
@@ -251,28 +225,6 @@ namespace LMS_API.Migrations
                     b.HasIndex("CreatedByTeacherId");
 
                     b.ToTable("Students");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "shoaib.ali@student.ucl.dk",
-                            FirstName = "Shoaib",
-                            LastName = "Ali",
-                            Password = "hashed_password",
-                            UpdatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "imran.khan@student.ucl.dk",
-                            FirstName = "Imran",
-                            LastName = "Khan",
-                            Password = "hashed_password",
-                            UpdatedDate = new DateTime(2026, 4, 7, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("LMS_API.Models.StudentStudyClass", b =>
@@ -288,23 +240,6 @@ namespace LMS_API.Migrations
                     b.HasIndex("StudyClassId");
 
                     b.ToTable("StudentStudyClasses");
-
-                    b.HasData(
-                        new
-                        {
-                            StudentId = 1,
-                            StudyClassId = 1
-                        },
-                        new
-                        {
-                            StudentId = 1,
-                            StudyClassId = 2
-                        },
-                        new
-                        {
-                            StudentId = 2,
-                            StudyClassId = 1
-                        });
                 });
 
             modelBuilder.Entity("LMS_API.Models.StudyClass", b =>
@@ -333,22 +268,6 @@ namespace LMS_API.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("StudyClasses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Class A",
-                            TeacherId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Class B",
-                            TeacherId = 1
-                        });
                 });
 
             modelBuilder.Entity("LMS_API.Models.Teacher", b =>
@@ -384,18 +303,6 @@ namespace LMS_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Teacher");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2026, 3, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "morten.domsgard@ucl.dk",
-                            FirstName = "Morten",
-                            LastName = "Domsgard",
-                            Password = "1234567890",
-                            UpdatedDate = new DateTime(2026, 3, 13, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("LMS_API.Models.AssignedAssignment", b =>
