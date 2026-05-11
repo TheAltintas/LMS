@@ -3,6 +3,7 @@ using LMS_API.Models.DTO.Assignment;
 using LMS_API.Services.Contract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS_API.Controllers
 {
@@ -30,6 +31,13 @@ namespace LMS_API.Controllers
                 {
                     return BadRequest("Assignment data is required");
                 }
+
+                if (!ModelState.IsValid)
+                {
+                    return ValidationProblem(ModelState);
+                }
+
+                Console.WriteLine($"PictureFile: {Request.Form.Files["PictureFile"]?.FileName ?? "NULL"}");
                 if (!_tokenService.TryGetTeacherId(User, out var teacherId))
                 {
                     return Unauthorized("Missing or invalid teacher identity.");
@@ -38,9 +46,19 @@ namespace LMS_API.Controllers
                 var assignment = await _assignmentService.CreateAssignmentAsync(assignmentDTO, teacherId);
                 if (assignment == null)
                 {
-                    return BadRequest("Could not create assignment. Check that the image is a valid type (jpg, png, gif, webp) and under 10 MB.");
+                    return BadRequest("Could not create assignment.");
                 }
                 return CreatedAtAction(nameof(CreateAssignment), new { id = assignment.Id }, assignment);// instead of Ok
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (DbUpdateException ex)
+            {
+                var details = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while saving the assignment: {details}");
             }
             catch (Exception ex)
             {

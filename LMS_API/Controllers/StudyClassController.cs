@@ -81,12 +81,19 @@ namespace LMS_API.Controllers
             if (!_tokenService.TryGetTeacherId(User, out var teacherId))
                 return Unauthorized("Missing or invalid teacher identity.");
 
-            var result = await _studyClassService.AddStudentsToStudyClassAsync(dto, teacherId);
+            try
+            {
+                var result = await _studyClassService.AddStudentsToStudyClassAsync(dto, teacherId);
 
-            if (result == null)
-                return NotFound();
+                if (result == null)
+                    return NotFound();
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

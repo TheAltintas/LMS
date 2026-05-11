@@ -22,32 +22,28 @@ namespace LMS_API.Services
 
         public async Task<AssignmentReadDTO?> CreateAssignmentAsync(AssignmentCreateDTO assignmentDTO, int teacherId)
         {
-            try
-            {
-                if (assignmentDTO == null) return null;
+            if (assignmentDTO == null) return null;
 
-                string? pictureUrl = null;
-                if (assignmentDTO.PictureFile != null)
+            string? pictureUrl = null;
+            if (assignmentDTO.PictureFile != null)
+            {
+                pictureUrl = await _fileStorage.SaveAsync(assignmentDTO.PictureFile);
+                if (pictureUrl == null)
                 {
-                    pictureUrl = await _fileStorage.SaveAsync(assignmentDTO.PictureFile);
-                    if (pictureUrl == null)
-                        return null;
+                    throw new InvalidOperationException(
+                        "Invalid image. Allowed types: jpg, jpeg, png, gif, webp. Max size: 10 MB.");
                 }
-
-                Assignment assignment = _mapper.Map<Assignment>(assignmentDTO);
-                assignment.PictureUrl = pictureUrl;
-                assignment.CreatedDate = DateTime.Now;
-                assignment.TeacherId = teacherId;
-
-                await _db.Assignments.AddAsync(assignment);
-                await _db.SaveChangesAsync();
-
-                return _mapper.Map<AssignmentReadDTO>(assignment);
             }
-            catch (Exception)
-            {
-                return null;
-            }
+
+            Assignment assignment = _mapper.Map<Assignment>(assignmentDTO);
+            assignment.PictureUrl = pictureUrl;
+            assignment.CreatedDate = DateTime.Now;
+            assignment.TeacherId = teacherId;
+
+            await _db.Assignments.AddAsync(assignment);
+            await _db.SaveChangesAsync();
+
+            return _mapper.Map<AssignmentReadDTO>(assignment);
         }
 
         public async Task<IEnumerable<AssignmentReadDTO>> GetAllAssignmentsAsync(int teacherId)

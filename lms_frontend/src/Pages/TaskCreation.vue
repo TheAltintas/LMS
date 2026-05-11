@@ -175,6 +175,26 @@ function onFileDrop(event) {
 
 function setFile(file) {
   if (!file) return;
+
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+  const maxBytes = 10 * 1024 * 1024;
+  const fileName = (file.name || '').toLowerCase();
+  const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+  if (!hasAllowedExtension) {
+    form.pictureFile = null;
+    imagePreview.value = null;
+    errors.value = { ...errors.value, pictureFile: 'Invalid image type. Use jpg, jpeg, png, gif, or webp.' };
+    return;
+  }
+
+  if (file.size > maxBytes) {
+    form.pictureFile = null;
+    imagePreview.value = null;
+    errors.value = { ...errors.value, pictureFile: 'Image is too large. Max size is 10 MB.' };
+    return;
+  }
+
   form.pictureFile = file;
   imagePreview.value = URL.createObjectURL(file);
 }
@@ -197,7 +217,20 @@ function validate() {
     nextErrors.point = 'Points must be between 0 and 10';
   }
 
-  if (!form.pictureFile) nextErrors.pictureFile = 'An image is required';
+  if (!form.pictureFile) {
+    nextErrors.pictureFile = 'An image is required';
+  } else {
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const maxBytes = 10 * 1024 * 1024;
+    const fileName = (form.pictureFile.name || '').toLowerCase();
+    const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+    if (!hasAllowedExtension) {
+      nextErrors.pictureFile = 'Invalid image type. Use jpg, jpeg, png, gif, or webp.';
+    } else if (form.pictureFile.size > maxBytes) {
+      nextErrors.pictureFile = 'Image is too large. Max size is 10 MB.';
+    }
+  }
 
   if (form.relatedVideo && !isValidUrl(form.relatedVideo)) {
     nextErrors.relatedVideo = 'Please enter a valid URL';
