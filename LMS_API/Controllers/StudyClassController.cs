@@ -13,11 +13,13 @@ namespace LMS_API.Controllers
     {
         private readonly IStudyClassService _studyClassService;
         private readonly ITokenService _tokenService;
+        private readonly ILogger<StudyClassController> _logger;
 
-        public StudyClassController(IStudyClassService studyClassService, ITokenService tokenService)
+        public StudyClassController(IStudyClassService studyClassService, ITokenService tokenService, ILogger<StudyClassController> logger)
         {
             _studyClassService = studyClassService;
             _tokenService = tokenService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -30,6 +32,8 @@ namespace LMS_API.Controllers
                 return Unauthorized("Missing or invalid teacher identity.");
 
             var result = await _studyClassService.CreateStudyClassAsync(dto, teacherId);
+
+            _logger.LogInformation("Study class created teacher_id={TeacherId} class_id={ClassId}", teacherId, result.Id);
 
             return Ok(result);
         }
@@ -69,6 +73,8 @@ namespace LMS_API.Controllers
             if (!success)
                 return NotFound($"StudyClass with id {id} not found");
 
+            _logger.LogInformation("Study class deleted teacher_id={TeacherId} class_id={ClassId}", teacherId, id);
+
             return NoContent();
         }
 
@@ -81,12 +87,19 @@ namespace LMS_API.Controllers
             if (!_tokenService.TryGetTeacherId(User, out var teacherId))
                 return Unauthorized("Missing or invalid teacher identity.");
 
-            var result = await _studyClassService.AddStudentsToStudyClassAsync(dto, teacherId);
+            try
+            {
+                var result = await _studyClassService.AddStudentsToStudyClassAsync(dto, teacherId);
 
-            if (result == null)
-                return NotFound();
+                if (result == null)
+                    return NotFound();
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

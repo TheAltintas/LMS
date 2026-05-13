@@ -12,16 +12,19 @@ namespace LMS_API.Models
 
         [Required]
         [MaxLength(50)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         // One-to-many (Teacher → AssignmentSets)
         [Required]
         public int TeacherId { get; set; }
         [JsonIgnore]
-        public Teacher Teacher { get; set; }
+        public Teacher? Teacher { get; set; }
 
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+
+		public bool IsDeleted { get; set; }
+		public DateTime? DeletedAtUtc { get; set; }
 
         // MANY-TO-MANY
         [JsonIgnore]

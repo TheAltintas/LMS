@@ -4,10 +4,14 @@
       <li class="brand">
         <router-link to="/">LMS Portal</router-link>
       </li>
+      <template v-if="loggedIn">
+        <li><router-link to="/notifications">Notifications</router-link></li>
+      </template>
       <template v-if="loggedIn && isTeacher">
         <li><router-link to="/teacher-dashboard">Dashboard</router-link></li>
         <li><router-link to="/create-task">Opret Opgave</router-link></li>
         <li><router-link to="/create-taskset">Opret Opgavesæt</router-link></li>  
+        <li><router-link to="/assigned-submissions">Tildel & Bedøm</router-link></li>
         <li><router-link to="/create-studyclass">Opret klasse</router-link></li>
         <li><router-link to="/register-student">Opret elev(er)</router-link></li>  
       </template>

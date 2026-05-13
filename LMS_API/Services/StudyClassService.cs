@@ -94,12 +94,34 @@ public class StudyClassService : IStudyClassService
         if (studyClass == null)
             return null;
 
+        var requestedStudentIds = dto.StudentIds
+            .Where(id => id > 0)
+            .Distinct()
+            .ToList();
+
+        if (requestedStudentIds.Count == 0)
+        {
+            return _mapper.Map<StudyClassReadDTO>(studyClass);
+        }
+
+        var validStudentIds = await _context.Students
+            .AsNoTracking()
+            .Where(s => requestedStudentIds.Contains(s.Id) && s.CreatedByTeacherId == teacherId)
+            .Select(s => s.Id)
+            .ToListAsync();
+
+        var invalidStudentIds = requestedStudentIds.Except(validStudentIds).ToList();
+        if (invalidStudentIds.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"One or more students were not found for this teacher: {string.Join(", ", invalidStudentIds)}");
+        }
+
         var existingStudentIds = studyClass.StudentStudyClasses
             .Select(x => x.StudentId)
             .ToHashSet();
 
-        var newLinks = dto.StudentIds
-            .Distinct()
+        var newLinks = validStudentIds
             .Where(id => !existingStudentIds.Contains(id))
             .Select(id => new StudentStudyClass
             {

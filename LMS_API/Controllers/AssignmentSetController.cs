@@ -13,11 +13,13 @@ namespace LMS_API.Controllers
     {
         private readonly IAssignmentSetService _assignmentSetService;
         private readonly ITokenService _tokenService;
+        private readonly ILogger<AssignmentSetController> _logger;
 
-        public AssignmentSetController(IAssignmentSetService assignmentSetService, ITokenService tokenService)
+        public AssignmentSetController(IAssignmentSetService assignmentSetService, ITokenService tokenService, ILogger<AssignmentSetController> logger)
         {
             _assignmentSetService = assignmentSetService;
             _tokenService = tokenService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -39,6 +41,9 @@ namespace LMS_API.Controllers
                 {
                     return BadRequest("Could not create assignment set.");
                 }
+
+                _logger.LogInformation("Assignment set created teacher_id={TeacherId} set_id={SetId}", teacherId, assignmentSet.Id);
+
                 return CreatedAtAction(nameof(CreateAssignmentSet), new { id = assignmentSet.Id }, assignmentSet);
             }
             catch (Exception ex)
@@ -59,11 +64,8 @@ namespace LMS_API.Controllers
                 }
 
                 var assignmentSet = await _assignmentSetService.GetAllAssignmentSetsByTeacherAsync(teacherId);
-                if (assignmentSet == null || !assignmentSet.Any())
-                {
-                    return NotFound("No assignment sets found.");
-                }
-                return Ok(assignmentSet);
+				assignmentSet ??= Enumerable.Empty<AssignmentSetReadDTO>();
+				return Ok(assignmentSet);
             }
             catch (Exception ex)
             {
@@ -81,7 +83,37 @@ namespace LMS_API.Controllers
 
             var result = await _assignmentSetService.AddAssignmentToSetAsync(assignmentSetId, assignmentId, teacherId);
             if (!result) return BadRequest("Could not add assignment to set.");
+
+            _logger.LogInformation("Assignment added to set teacher_id={TeacherId} set_id={SetId} assignment_id={AssignmentId}", teacherId, assignmentSetId, assignmentId);
+
             return Ok("Assignment added successfully.");
+        }
+
+        [HttpDelete("{assignmentSetId:int}")]
+        public async Task<IActionResult> DeleteAssignmentSet(int assignmentSetId)
+        {
+            if (!_tokenService.TryGetTeacherId(User, out var teacherId))
+            {
+                return Unauthorized("Missing or invalid teacher identity.");
+            }
+
+            bool deleted;
+            try
+            {
+                deleted = await _assignmentSetService.DeleteAssignmentSetAsync(assignmentSetId, teacherId);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+
+            if (!deleted)
+            {
+                return NotFound($"Assignment set with ID {assignmentSetId} not found.");
+            }
+
+            _logger.LogInformation("Assignment set deleted teacher_id={TeacherId} set_id={SetId}", teacherId, assignmentSetId);
+            return Ok(new { message = $"Assignment set deleted with ID: {assignmentSetId}" });
         }
     }
 }
